@@ -1,18 +1,84 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { adminRequest } from "../../axios";
 
 function UsersList() {
+
+  const [data , setData] =useState(null)
+
+
+  const fetchdata = async () => {
+    try {
+      adminRequest({
+        url:'/api/admin/userlist',
+        method : 'GET'
+      })
+      .then((response) => {
+        console.log(response.data.rows)
+        setData(response.data.rows)
+    
+      })
+      .catch((err)=>{
+        console.log(err)
+      }) 
+    } catch (error) {
+      console.log(error)
+    }
+  }
+ 
+
+  useEffect(()=> {
+    fetchdata()
+  },[])
+
   return (
     <div>
+      <nav className="navbar navbar-expand-lg navbar-light bg-light">
+        <div className="container-fluid">
+          <Link to={""} className="navbar-brand">
+            Brand
+          </Link>
+          <button
+            type="button"
+            className="navbar-toggler"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarCollapse"
+          >
+            <span className="navbar-toggler-icon"></span>
+          </button>
+          <div className="collapse navbar-collapse" id="navbarCollapse">
+            <div className="navbar-nav">
+              <Link to={""} className="nav-item nav-link active">
+                Dashboard
+              </Link>
+              <Link to={"/admin/userlist"} className="nav-item nav-link">
+                Users
+              </Link>
+              <Link to={""} className="nav-item nav-link">
+                Messages
+              </Link>
+              <Link to={""} className="nav-item nav-link disabled" tabIndex="-1">
+                Reports
+              </Link>
+            </div>
+            <div className="navbar-nav ms-auto">
+              <Link to={"/admin/login"} className="nav-item nav-link">
+                LogOut
+              </Link>
+            </div>
+          </div>
+        </div>
+      </nav>
       <div className="container">
-        <nav class="navbar navbar-light bg-light">
-          <form class="form-inline">
+        <nav className="navbar navbar-light bg-light">
+          <form className="form-inline">
             <input
-              class="form-control mr-sm-2"
+              className="form-control mr-sm-2"
               type="search"
               placeholder="Search"
               aria-label="Search"
             />
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
+            <button className="btn btn-outline-success my-2 my-sm-0" type="submit">
               Search
             </button>
           </form>
@@ -21,60 +87,29 @@ function UsersList() {
 
       <div className="container">
         <div className="row">
-          <ul class="list-group list-group-light">
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              <div class="d-flex align-items-center">
+          {data?.map((item)=> (
+          <ul className="list-group list-group-light">
+            <li className="list-group-item d-flex justify-content-between align-items-center">
+              <div className="d-flex align-items-center">
                 <img
-                  src="https://mdbootstrap.com/img/new/avatars/8.jpg"
+                  src={`https://localhost:5000/public/`+ item.image}
                   alt=""
                   style={{ height: "45px", width: "45px" }}
-                  class="rounded-circle"
+                  className="rounded-circle"
                 />
-                <div class="ms-3">
-                  <p class="fw-bold mb-1">John Doe</p>
-                  <p class="text-muted mb-0">john.doe@gmail.com</p>
+                <div className="ms-3">
+                  <p className="fw-bold mb-1">{item.name}</p>
+                  <p className="text-muted mb-0">{item.email}</p>
                 </div>
               </div>
-              <a class="btn btn-link btn-rounded btn-sm" href="#" role="button">
+              <Link className="btn btn-link btn-rounded btn-sm" to={`/admin/user/${item.id}`} role="button">
                 View
-              </a>
+              </Link>
             </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              <div class="d-flex align-items-center">
-                <img
-                  src="https://mdbootstrap.com/img/new/avatars/6.jpg"
-                  class="rounded-circle"
-                  alt=""
-                  style={{ height: "45px", width: "45px" }}
-                />
-                <div class="ms-3">
-                  <p class="fw-bold mb-1">Alex Ray</p>
-                  <p class="text-muted mb-0">alex.ray@gmail.com</p>
-                </div>
-              </div>
-              <a class="btn btn-link btn-rounded btn-sm" href="#" role="button">
-                View
-              </a>
-            </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              <div class="d-flex align-items-center">
-                <img
-                  src="https://mdbootstrap.com/img/new/avatars/7.jpg"
-                  class="rounded-circle"
-                  alt=""
-                  style={{ height: "45px", width: "45px" }}
-                />
-                <div class="ms-3">
-                  <p class="fw-bold mb-1">Kate Hunington</p>
-                  <p class="text-muted mb-0">kate.hunington@gmail.com</p>
-                </div>
-              </div>
-
-              <a class="btn btn-link btn-rounded btn-sm" href="#" role="button">
-                View
-              </a>
-            </li>
+       
+        
           </ul>
+        ))}
         </div>
       </div>
     </div>

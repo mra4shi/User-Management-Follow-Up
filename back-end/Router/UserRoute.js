@@ -2,6 +2,7 @@ const express = require('express');
 const Controller = require('../Controller/UserController')
 const router = express.Router();
 
+
 // MULTER SETUP
 const multer = require("multer");
 const path = require("path");
@@ -17,8 +18,8 @@ const uploads = multer({
     storage : storage
 })
 
-router.get('/get' , Controller.GetData);
 
-router.post('/register', uploads.single('image') , Controller.registeruser)
+
+router.post('/register',uploads.single('image'), Controller.registeruser)
 
 module.exports = router;

@@ -10,6 +10,10 @@ import Register from './Pages/UserPages/Register';
 import Success from './Pages/UserPages/Success';
 import AdminLogin from './Pages/AdminPages/AdminLogin';
 import UsersList from './Pages/AdminPages/UsersList';
+import Dashbord from './Pages/AdminPages/AdminDashboard'
+import PublicAdminRoute from './Pages/AdminPages/AdminPublicRoute';
+import ProtectAdminRoute from './Pages/AdminPages/AdminProtectedRoute';
+import SingleUser from './Pages/AdminPages/UserSinglePage'
 
 function App() {
   return (
@@ -31,11 +35,31 @@ function App() {
 
  {/* ADMIN SECTION */}
 
-   <Route path='/admin/login' element={<AdminLogin/>} />
+   <Route path='/admin/login' element={
+    <PublicAdminRoute>
+      <AdminLogin/>
+    </PublicAdminRoute>
+   } />
 
 
-<Route path='/admin/userlist' element={<UsersList/>} />
+<Route path='/admin/userlist' element={
+  <ProtectAdminRoute>
+    <UsersList/>
+  </ProtectAdminRoute>
+} />
  
+<Route path='/admin/home' element={
+  <ProtectAdminRoute>
+    <Dashbord/>
+  </ProtectAdminRoute>
+}/> 
+
+<Route path='/admin/user/:id' element={
+  <ProtectAdminRoute>
+    <SingleUser/>
+  </ProtectAdminRoute>
+}/>
+
 
    </Routes>
    

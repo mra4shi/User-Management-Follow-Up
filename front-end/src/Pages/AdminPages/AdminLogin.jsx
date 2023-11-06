@@ -1,6 +1,33 @@
 import React from 'react'
+import axios from 'axios'
+import {toast} from "react-toastify"
+import { useNavigate } from 'react-router-dom'
 
 function AdminLogin() {
+  const navigate = useNavigate()
+  const handleLogin = async (e) => {
+    try {
+  
+      e.preventDefault()
+  
+      const response = await axios.post("http://localhost:5000/api/admin/login",{
+        email : e.target.email.value,
+        password : e.target.password.value
+      })
+  
+      if (response.data.success) {
+        toast.success(response.data.message)
+        localStorage.setItem("admin_Secret" , response.data.admin_Secret)
+        navigate("/admin/home")
+      } else {
+        toast.error(response.data.message)
+      }
+      
+    } catch (error) {
+      console.log(error)
+      toast.error("error in backend")
+    }
+  }
   return (
     <div>
 
@@ -17,7 +44,7 @@ function AdminLogin() {
                         Admin Login
                       </p>
 
-                      <form class="mx-1 mx-md-4" >
+                      <form class="mx-1 mx-md-4" onSubmit={handleLogin}>
                        
 
                         <div class="d-flex flex-row align-items-center mb-4">
@@ -26,8 +53,6 @@ function AdminLogin() {
                             <input
                               type="email"
                               name="email"
-                              value={''}
-                            
                               id="form3Example3c"
                               class="form-control"
                             />
@@ -41,10 +66,8 @@ function AdminLogin() {
                           <i class="fas fa-user fa-lg me-3 fa-fw"></i>
                           <div class="form-outline flex-fill mb-0">
                             <input
-                              type="text"
-                              value={''}
-                              name="name"
-                            
+                              type="password"
+                              name="password"      
                               id="form3Example1c"
                               class="form-control"
                             />
@@ -56,7 +79,7 @@ function AdminLogin() {
 
                         <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
                           <button type="submit" class="btn btn-primary btn-lg">
-                            Register
+                           Login
                           </button>
                         </div>
                       </form>

@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-
+const admin_Secret="adminToken"
 module.exports = async (req, res, next) => {
   try {
     const authorizationHeader = req.headers["authorization"];
@@ -13,9 +13,9 @@ module.exports = async (req, res, next) => {
 
     const token = authorizationHeader.split(" ")[1];
 
-    jwt.verify(token, process.env.admin_Secret, (err, decoded) => {
+    jwt.verify(token, admin_Secret, (err, decoded) => {
       if (err) {
-        console.log(" error midddlewhare ");
+        console.log("error midddlewhare");
         return res.status(401).send({ message: "Auth failed", success: false });
       } else {
         req.body.adminId = decoded.id;

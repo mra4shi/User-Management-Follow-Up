@@ -12,45 +12,41 @@ function Register() {
   const [gender, setGender] = useState("");
   const [image, setImage] = useState("");
 
-  const handleRegister= async (e) => {
+  const handleRegister = async (e) => {
     try {
       e.preventDefault();
-      const response = await axios.post('/api/user/register', 
-      
-       {
-        name : name,
-        graduation: graduation,
-        email : email ,
-        mobile : mobile ,
-        age : age,
-        gender : gender ,
-        image :image
-      })
-      console.log(response)
 
-      if (response.data) {
-
-        toast.success("Registered")
-      } else {
-        toast.error("error registering")
-       
-      }
-
-      
-    } catch (error) {
-      toast.error("smething went wrong")
+      const formData = new FormData();
+      formData.append("name",name)
+      formData.append("graduation",graduation)
+      formData.append("email",email)
+      formData.append("mobile",mobile)
+      formData.append("age",age)
+      formData.append("gender",gender)
+      formData.append("image",image)
+  
+    axios
+    .post("http://localhost:5000/api/user/register",formData)
+    .then(()=>{
+      navigate("/")
+      toast.success("submission success")
+    })
+    .catch((error)=>{
       console.log(error)
+      toast.error("error registrating user")
+    })
+      
+    
+    } catch (error) {
+      toast.error('Something went wrong');
+      console.log(error);
     }
-  }
-
-
-
+  };
+  
 
   const navigate = useNavigate();
   const { id } = useParams();
 
-
- 
   return (
     <div>
       <section className="vh-100%" style={{ backgroundColor: "#eee" }}>
@@ -75,7 +71,6 @@ function Register() {
                               name="name"
                               onChange={(e) => {
                                 setName(e.target.value);
-                                
                               }}
                               id="form3Example1c"
                               className="form-control"
@@ -93,14 +88,14 @@ function Register() {
                               type="text"
                               name="graduation"
                               value={graduation}
-                              onChange={(e)=>{
+                              onChange={(e) => {
                                 setGraduation(e.target.value);
                               }}
                               id="form3Example3c"
                               className="form-control"
                             />
                             <label className="form-label" for="form3Example3c">
-                              Graduation 
+                              Graduation
                             </label>
                           </div>
                         </div>
@@ -112,7 +107,7 @@ function Register() {
                               type="email"
                               name="email"
                               value={email}
-                              onChange={(e)=>{
+                              onChange={(e) => {
                                 setEmail(e.target.value);
                               }}
                               id="form3Example3c"
@@ -130,7 +125,7 @@ function Register() {
                             <input
                               type="number"
                               name="mobile"
-                              onChange={(e)=>{
+                              onChange={(e) => {
                                 setMobile(e.target.value);
                               }}
                               value={mobile}
@@ -150,7 +145,7 @@ function Register() {
                               type="Number"
                               name="age"
                               value={age}
-                              onChange={(e)=>{
+                              onChange={(e) => {
                                 setAge(e.target.value);
                               }}
                               id="form3Example4cd"
@@ -168,7 +163,7 @@ function Register() {
                             <input
                               type="text"
                               name="gender"
-                              onChange={(e)=>{
+                              onChange={(e) => {
                                 setGender(e.target.value);
                               }}
                               value={gender}
@@ -185,19 +180,22 @@ function Register() {
                           <label htmlFor="image" className="text-gray-600">
                             Image
                           </label>
-                        
+
                           <input
                             type="file"
                             name="image"
                             accept="image/*"
-                            onChange={(e)=>{
+                            onChange={(e) => {
                               setImage(e.target.value);
                             }}
                           />
                         </div>
 
                         <div className="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
-                          <button type="submit" className="btn btn-primary btn-lg">
+                          <button
+                            type="submit"
+                            className="btn btn-primary btn-lg"
+                          >
                             Register
                           </button>
                         </div>
