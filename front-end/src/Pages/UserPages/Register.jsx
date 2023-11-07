@@ -10,7 +10,7 @@ function Register() {
   const [mobile, setMobile] = useState("");
   const [age, setAge] = useState("");
   const [gender, setGender] = useState("");
-  const [image, setImage] = useState("");
+  
 
   const handleRegister = async (e) => {
     try {
@@ -23,7 +23,7 @@ function Register() {
       formData.append("mobile",mobile)
       formData.append("age",age)
       formData.append("gender",gender)
-      formData.append("image",image)
+    
   
     axios
     .post("http://localhost:5000/api/user/register",formData)
@@ -176,20 +176,7 @@ function Register() {
                           </div>
                         </div>
 
-                        <div>
-                          <label htmlFor="image" className="text-gray-600">
-                            Image
-                          </label>
-
-                          <input
-                            type="file"
-                            name="image"
-                            accept="image/*"
-                            onChange={(e) => {
-                              setImage(e.target.value);
-                            }}
-                          />
-                        </div>
+                        
 
                         <div className="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
                           <button

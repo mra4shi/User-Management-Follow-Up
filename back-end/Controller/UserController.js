@@ -16,12 +16,12 @@ db.connect()
 
 const registeruser = async (req, res) => {
     try {
-        console.log(req.file.filename)
-        const image = req.file.filename
+        
+    
     const { name,graduation,email,mobile,age,gender } = req.body;
-    const sqlInsert = "INSERT INTO userdata (name,graduation,email,mobile,age,gender,image) VALUES (? , ? , ? , ? , ? , ? , ?)";
-    console.log(sqlInsert)
-    db.query(sqlInsert,[name,graduation,email,mobile,age,gender,image ] , (error , result ) => {
+    const sqlInsert = `INSERT INTO userdata (name,graduation,email,mobile,age,gender) VALUES ($1 , $2 , $3 , $4 , $5 , $6 )`;
+        
+    db.query(sqlInsert,[name,graduation,email,mobile,age,gender ] , (error , result ) => {
         if (error) {
             console.log("error" , error)
         }

@@ -1,6 +1,8 @@
 const jwt = require("jsonwebtoken");
 const { Client } = require("pg");
 
+
+
 const db = new Client({
   host: "localhost",
   port: 5432,
@@ -48,35 +50,89 @@ const GetUserData = async (req, res) => {
 
 const GetSingleuser = async (req, res) => {
   try {
-   
-    // Get the user ID from the request parameters.
     const id = req.params.id;
 
-    // Prepare the SQL query.
     const sqlGet = `SELECT * FROM userdata WHERE id = $1`;
 
-    // Execute the query using a parameterized query.
     const result = await db.query(sqlGet, [id]);
 
-    // If the query was successful, send the results to the client.
     if (result) {
       res.send(result);
     } else {
-      // If the query failed, log the error and send a generic error message to the client.
       console.log(err);
       res.status(500).send("Error in Backend");
     }
   } catch (error) {
-    // Log the error and send a generic error message to the client.
     console.log(error);
     res.status(500).send("Error in Backend");
   }
 };
 
+const CreateFollowup = async (req, res) => {
+  try {
+    const id = req.params.id;
 
+    const status = "Accepted";
+
+    const sqlInsert = `INSERT INTO follow_up(user_id,status) VALUES ( $1 , $2)`;
+
+    db.query(sqlInsert, [id, status], (error, result) => {
+      if (result) {
+        res.send(result);
+      } else {
+        console.log(error);
+      }
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const GetFollowUp = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const sqlGet = `SELECT * FROM follow_up WHERE user_id = $1`;
+
+    const result = await db.query(sqlGet, [id]);
+
+    if (result) {
+      res.send(result);
+    } else {
+      console.log(err);
+      res.status(500).send("Error in Backend");
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Error in Backend");
+  }
+};
+
+const EditFolloup = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const { status } = req.body;
+
+    const sqlUpdate = `UPDATE follow SET status = $1, WHERE id = $1`;
+
+    const result = await db.query(sqlUpdate, [status,id]);
+
+    if (result) {
+      res.send(result);
+    } else {
+      console.log(error);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 module.exports = {
   adminLogin,
   GetUserData,
   GetSingleuser,
+  CreateFollowup,
+  GetFollowUp,
+  EditFolloup,
 };

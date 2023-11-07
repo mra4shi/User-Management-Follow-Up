@@ -91,12 +91,7 @@ function UsersList() {
           <ul className="list-group list-group-light">
             <li className="list-group-item d-flex justify-content-between align-items-center">
               <div className="d-flex align-items-center">
-                <img
-                  src={`https://localhost:5000/public/`+ item.image}
-                  alt=""
-                  style={{ height: "45px", width: "45px" }}
-                  className="rounded-circle"
-                />
+                
                 <div className="ms-3">
                   <p className="fw-bold mb-1">{item.name}</p>
                   <p className="text-muted mb-0">{item.email}</p>

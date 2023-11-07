@@ -20,6 +20,6 @@ const uploads = multer({
 
 
 
-router.post('/register',uploads.single('image'), Controller.registeruser)
+router.post('/register',uploads.single("data"), Controller.registeruser)
 
 module.exports = router;
