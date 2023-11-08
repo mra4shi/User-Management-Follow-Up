@@ -30,9 +30,18 @@ router.get('/user/:id', auth , Controller.GetSingleuser)
 
 router.post('/follow-up/:id', auth, Controller.CreateFollowup)
 
-router.get('/followup-status/:id',auth,uploads.single, Controller.GetFollowUp)
+router.get('/followup-status/:id',auth, Controller.GetFollowUp)
 
-router.put('/followup-edit/:id',auth, Controller.EditFolloup)
+router.put('/followup-edit/:id',auth, uploads.single("data"), Controller.EditFolloup)
 
+router.get('/notification', auth , Controller.GetNotification)
+
+router.get('/getuserwithfollowup',auth , Controller.GetUserwithFollowup)
+
+router.get('/getuserwithoutfollowup',auth , Controller.GetUserWithoutFollowup)
+
+router.get('/dashboard' , auth , Controller.GetDataDashboard)
+
+router.put('/updatenotification/:id',auth,Controller.UpdateNotification)
 
 module.exports = router

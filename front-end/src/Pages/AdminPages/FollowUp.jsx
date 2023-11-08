@@ -13,6 +13,11 @@ function FollowUp() {
   const [form, setForm] = useState({
     status: "",
   });
+  const handleLogout = (e) => {
+    e.preventDefault();
+    localStorage.removeItem("admin_Secret");
+    navigate("/admin/login");
+  };
 
   const handleChange = (evt) => {
     const { name , value } = evt.target
@@ -49,6 +54,42 @@ function FollowUp() {
 
   return (
     <div class="container">
+
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+          <Link to={""} class="navbar-brand">
+            Brand
+          </Link>
+          <button
+            type="button"
+            class="navbar-toggler"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarCollapse"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <div class="navbar-nav">
+              <Link to={"/admin/home"} class="nav-item nav-link active ">
+                Dashboard
+              </Link>
+              <Link to={"/admin/userlist"} class="nav-item nav-link">
+                Users
+              </Link>
+              <Link to={"/admin/notification"} class="nav-item nav-link">
+                Notification
+              </Link>
+             
+            </div>
+            <div class="navbar-nav ms-auto">
+              <button onClick={handleLogout} class="nav-item nav-link">
+                LogOut
+              </button>
+            </div>
+          </div>
+        </div>
+      </nav>
       <div class="row justify-content-center">
         <div class="col-md-6">
           <section>

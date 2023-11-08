@@ -10,39 +10,59 @@ function Register() {
   const [mobile, setMobile] = useState("");
   const [age, setAge] = useState("");
   const [gender, setGender] = useState("");
-  
 
   const handleRegister = async (e) => {
     try {
       e.preventDefault();
 
-      const formData = new FormData();
-      formData.append("name",name)
-      formData.append("graduation",graduation)
-      formData.append("email",email)
-      formData.append("mobile",mobile)
-      formData.append("age",age)
-      formData.append("gender",gender)
+ 
+
     
+      if (!name || !graduation || !email || !mobile || !age || !gender) {
+        toast.error("Please fill in all fields.");
+        return;
+      }
+
+     
+      const emailRegex = /^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/;
+      if (!emailRegex.test(email)) {
+        toast.error("Please enter a valid email address.");
+        return;
+      }
+
+      const mobileRegex = /^\d{10}$/;
+      if (!mobileRegex.test(mobile)) {
+        toast.error("Please enter a valid 10-digit mobile number.");
+        return;
+      }
+
   
-    axios
-    .post("http://localhost:5000/api/user/register",formData)
-    .then(()=>{
-      navigate("/")
-      toast.success("submission success")
-    })
-    .catch((error)=>{
-      console.log(error)
-      toast.error("error registrating user")
-    })
-      
-    
+  
+
+
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("graduation", graduation);
+      formData.append("email", email);
+      formData.append("mobile", mobile);
+      formData.append("age", age);
+      formData.append("gender", gender);
+
+      axios
+        .post("http://localhost:5000/api/user/register", formData)
+        .then(() => {
+          navigate("/success");
+          toast.success("Submission success");
+        })
+        .catch((error) => {
+          console.log(error);
+          toast.error("Error registering user");
+        });
     } catch (error) {
-      toast.error('Something went wrong');
+      toast.error("Something went wrong");
       console.log(error);
     }
   };
-  
 
   const navigate = useNavigate();
   const { id } = useParams();
@@ -175,8 +195,6 @@ function Register() {
                             </label>
                           </div>
                         </div>
-
-                        
 
                         <div className="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
                           <button

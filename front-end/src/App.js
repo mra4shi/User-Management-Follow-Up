@@ -15,6 +15,9 @@ import ProtectAdminRoute from "./Pages/AdminPages/AdminProtectedRoute";
 import SingleUser from "./Pages/AdminPages/UserSinglePage";
 import AddFollowUp from "./Pages/AdminPages/FollowUp";
 import EditFollowup from "./Pages/AdminPages/EditFollowup";
+import Notification from "./Pages/AdminPages/Notification";
+
+
 
 function App() {
   return (
@@ -82,6 +85,16 @@ function App() {
               <EditFollowup />
             </ProtectAdminRoute>
           }
+        />
+
+
+        <Route 
+        path="/admin/notification"
+        element={
+          <ProtectAdminRoute>
+            <Notification/>
+          </ProtectAdminRoute>
+        }
         />
       </Routes>
     </BrowserRouter>

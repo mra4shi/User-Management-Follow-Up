@@ -1,35 +1,45 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { adminRequest } from "../../axios";
 
 function UsersList() {
+  const [search, setSearch] = useState("");
+  const [data, setData] = useState(null);
+  const [followup, setFollowup] = useState(null);
+  const [nonfollowup, setNonfollowup] = useState(null);
+  const [showFollowup, setShowFollowup] = useState(true);
 
-  const [data , setData] =useState(null)
+  const navigate = useNavigate();
 
+  const handleLogout = (e) => {
+    e.preventDefault();
+    localStorage.removeItem("admin_Secret");
+    navigate("/admin/login");
+  };
 
-  const fetchdata = async () => {
-    try {
-      adminRequest({
-        url:'/api/admin/userlist',
-        method : 'GET'
-      })
-      .then((response) => {
-        console.log(response.data.rows)
-        setData(response.data.rows)
-    
-      })
-      .catch((err)=>{
-        console.log(err)
-      }) 
-    } catch (error) {
-      console.log(error)
-    }
-  }
  
 
-  useEffect(()=> {
-    fetchdata()
-  },[])
+  useEffect(() => {
+    adminRequest({
+      url: "/api/admin/getuserwithfollowup",
+      method: "GET",
+    }).then((response) => {
+      setFollowup(response.data);
+    });
+  }, []);
+
+  useEffect(() => {
+    adminRequest({
+      url: "/api/admin/getuserwithoutfollowup",
+      method: "GET",
+    }).then((response) => {
+      setNonfollowup(response.data);
+    });
+  }, []);
+
+  
+
+  const userList = showFollowup ? followup : nonfollowup;
 
   return (
     <div>
@@ -48,27 +58,26 @@ function UsersList() {
           </button>
           <div className="collapse navbar-collapse" id="navbarCollapse">
             <div className="navbar-nav">
-              <Link to={""} className="nav-item nav-link active">
+              <Link to={"/admin/home"} className="nav-item nav-link active">
                 Dashboard
               </Link>
               <Link to={"/admin/userlist"} className="nav-item nav-link">
                 Users
               </Link>
-              <Link to={""} className="nav-item nav-link">
-                Messages
+              <Link to={"/admin/notification"} className="nav-item nav-link">
+               Notification
               </Link>
-              <Link to={""} className="nav-item nav-link disabled" tabIndex="-1">
-                Reports
-              </Link>
+           
             </div>
             <div className="navbar-nav ms-auto">
-              <Link to={"/admin/login"} className="nav-item nav-link">
+              <Link to={handleLogout} className="nav-item nav-link">
                 LogOut
               </Link>
             </div>
           </div>
         </div>
       </nav>
+
       <div className="container">
         <nav className="navbar navbar-light bg-light">
           <form className="form-inline">
@@ -77,34 +86,62 @@ function UsersList() {
               type="search"
               placeholder="Search"
               aria-label="Search"
+              onChange={(e) => {
+                setSearch(e.target.value);
+              }}
             />
-            <button className="btn btn-outline-success my-2 my-sm-0" type="submit">
-              Search
+            <button
+              type="button"
+              class="navbar-toggler"
+              data-bs-toggle="collapse"
+              data-bs-target="#navbarCollapse"
+              onClick={() => setShowFollowup(true)}
+            >
+              Follow-up Users
             </button>
+
+            <button
+            type="button"
+            class="navbar-toggler"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarCollapse"
+            onClick={() => setShowFollowup(false)}
+          >
+            Non Follow-up Users
+          </button>
           </form>
         </nav>
       </div>
 
       <div className="container">
         <div className="row">
-          {data?.map((item)=> (
-          <ul className="list-group list-group-light">
-            <li className="list-group-item d-flex justify-content-between align-items-center">
-              <div className="d-flex align-items-center">
-                
-                <div className="ms-3">
-                  <p className="fw-bold mb-1">{item.name}</p>
-                  <p className="text-muted mb-0">{item.email}</p>
-                </div>
-              </div>
-              <Link className="btn btn-link btn-rounded btn-sm" to={`/admin/user/${item.id}`} role="button">
-                View
-              </Link>
-            </li>
-       
-        
-          </ul>
-        ))}
+         
+
+          {userList
+            ?.filter((users) =>
+              search.toLowerCase() === ""
+                ? true
+                : users.name.toLowerCase().includes(search.toLowerCase())
+            )
+            ?.map((item) => (
+              <ul className="list-group list-group-light" key={item.id}>
+                <li className="list-group-item d-flex justify-content-between align-items-center">
+                  <div className="d-flex align-items-center">
+                    <div className="ms-3">
+                      <p className="fw-bold mb-1">{item.name}</p>
+                      <p className="text-muted mb-0">{item.email}</p>
+                    </div>
+                  </div>
+                  <Link
+                    className="btn btn-link btn-rounded btn-sm"
+                    to={`/admin/user/${item.id}`}
+                    role="button"
+                  >
+                    View
+                  </Link>
+                </li>
+              </ul>
+            ))}
         </div>
       </div>
     </div>
