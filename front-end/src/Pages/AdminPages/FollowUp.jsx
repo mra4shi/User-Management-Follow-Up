@@ -20,46 +20,44 @@ function FollowUp() {
   };
 
   const handleChange = (evt) => {
-    const { name , value } = evt.target
-    setForm(({
+    const { name, value } = evt.target;
+    setForm({
       ...form,
-      [name] : value
-    }))
-  }
+      [name]: value,
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       console.log(form.status);
       const formDataToSend = new FormData();
-      formDataToSend.append(form.status,"status");
-      console.log(formDataToSend,"sending data");
+      formDataToSend.append("status", form.status);
+
       const response = await adminRequest({
         url: `/api/admin/follow-up/${id}`,
         method: "POST",
         data: formDataToSend,
-       
       });
       if (response.data) {
         console.log(response);
-        navigate("/admin/home");
+        navigate(`/admin/user/${id}`);
 
         toast.success("followup success");
       }
     } catch (error) {
-      console.log(error);
-      toast.error("followup failed");
+        toast.error("something is wrong login again");
+        localStorage.removeItem("admin_Secret");
+        navigate("/admin/login");
     }
   };
 
   return (
     <div class="container">
-
-
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
           <Link to={""} class="navbar-brand">
-            Brand
+            Kentra Edu
           </Link>
           <button
             type="button"
@@ -80,7 +78,6 @@ function FollowUp() {
               <Link to={"/admin/notification"} class="nav-item nav-link">
                 Notification
               </Link>
-             
             </div>
             <div class="navbar-nav ms-auto">
               <button onClick={handleLogout} class="nav-item nav-link">
@@ -102,7 +99,6 @@ function FollowUp() {
                   type="text"
                   placeholder="Description"
                   name="status"
-              
                   onChange={handleChange}
                   className="form-control w-full"
                 />

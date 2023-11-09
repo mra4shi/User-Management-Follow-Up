@@ -34,6 +34,10 @@ function EditFollowup() {
       setStatusData(response.data.rows[0]);
       console.log(response.data.rows[0].status, "data");
       
+    }).catch((error) => {
+      toast.error("something is wrong login again");
+      localStorage.removeItem("admin_Secret");
+      navigate("/admin/login");
     });
   };
 
@@ -63,7 +67,7 @@ function EditFollowup() {
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
           <Link to={""} class="navbar-brand">
-            Brand
+            Kentra Edu
           </Link>
           <button
             type="button"

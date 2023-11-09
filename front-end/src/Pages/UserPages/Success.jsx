@@ -16,7 +16,7 @@ function Success() {
                 </div>
                 <div class="text-center">
                     <h1>Thank You !</h1>
-                    <p>We've send the link to your inbox. Lorem ipsum dolor sit, </p>
+                    <p>We Will Review Your Registration  </p>
                     <Link to={'/'}>
                     <button class="btn btn-primary">Back Home</button>
                     </Link>

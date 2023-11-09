@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const admin_Secret="adminToken"
+const admin_Secret = "adminToken";
 module.exports = async (req, res, next) => {
   try {
     const authorizationHeader = req.headers["authorization"];

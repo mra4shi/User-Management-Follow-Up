@@ -1,4 +1,5 @@
 import "./App.css";
+import '../src/Pages/AdminPages/DashBoard.css'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -16,8 +17,8 @@ import SingleUser from "./Pages/AdminPages/UserSinglePage";
 import AddFollowUp from "./Pages/AdminPages/FollowUp";
 import EditFollowup from "./Pages/AdminPages/EditFollowup";
 import Notification from "./Pages/AdminPages/Notification";
-
-
+import ErrorPage from "./Pages/UserPages/ErrorPage";
+import AdminErrorPage from "./Pages/AdminPages/AdminError";
 
 function App() {
   return (
@@ -87,15 +88,18 @@ function App() {
           }
         />
 
-
-        <Route 
-        path="/admin/notification"
-        element={
-          <ProtectAdminRoute>
-            <Notification/>
-          </ProtectAdminRoute>
-        }
+        <Route
+          path="/admin/notification"
+          element={
+            <ProtectAdminRoute>
+              <Notification />
+            </ProtectAdminRoute>
+          }
         />
+
+        <Route path="*" element={<ErrorPage />} />
+
+        <Route path="/admin/*" element={<AdminErrorPage />} />
       </Routes>
     </BrowserRouter>
   );

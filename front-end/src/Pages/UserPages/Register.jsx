@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate, Link, useParams } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
 
 function Register() {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [graduation, setGraduation] = useState("");
   const [email, setEmail] = useState("");
@@ -15,15 +16,11 @@ function Register() {
     try {
       e.preventDefault();
 
- 
-
-    
       if (!name || !graduation || !email || !mobile || !age || !gender) {
         toast.error("Please fill in all fields.");
         return;
       }
 
-     
       const emailRegex = /^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/;
       if (!emailRegex.test(email)) {
         toast.error("Please enter a valid email address.");
@@ -36,10 +33,6 @@ function Register() {
         return;
       }
 
-  
-  
-
-
       const formData = new FormData();
       formData.append("name", name);
       formData.append("graduation", graduation);
@@ -50,22 +43,21 @@ function Register() {
 
       axios
         .post("http://localhost:5000/api/user/register", formData)
-        .then(() => {
-          navigate("/success");
-          toast.success("Submission success");
+        .then((response) => {
+          console.log(response)
+          if (response.data.success) {
+            navigate("/success");
+            toast.success("Submission success");
+          } 
+        }).catch((error)=>{
+          console.log(error)
+          toast.error("Email or Mobile Number Already Registered...");
         })
-        .catch((error) => {
-          console.log(error);
-          toast.error("Error registering user");
-        });
     } catch (error) {
       toast.error("Something went wrong");
       console.log(error);
     }
   };
-
-  const navigate = useNavigate();
-  const { id } = useParams();
 
   return (
     <div>

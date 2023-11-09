@@ -71,7 +71,9 @@ const CreateFollowup = async (req, res) => {
   try {
     const id = req.params.id;
 
-    const status = "Accepted";
+    console.log(req.body);
+
+    const status = req.body.status;
 
     const follow_up_date = new Date();
     console.log(follow_up_date);
@@ -114,12 +116,9 @@ const EditFolloup = async (req, res) => {
   try {
     const id = req.params.id;
 
-    console.log(req.body);
-
     const { status } = req.body;
 
     const follow_up_date = new Date();
-    console.log(follow_up_date);
 
     const sqlUpdate = `UPDATE follow_up SET status = $1 ,follow_up_date = $2 WHERE user_id = $3`;
 
@@ -135,13 +134,9 @@ const EditFolloup = async (req, res) => {
   }
 };
 
-
-
 const GetNotification = async (req, res) => {
   try {
     const notification = await Notification.find({ read: "Unread" });
-
-
     res
       .status(200)
       .send({ message: "Notification fetched", notification, success: true });
@@ -153,31 +148,33 @@ const GetNotification = async (req, res) => {
   }
 };
 
-
-const UpdateNotification = async ( req, res) => {
+const UpdateNotification = async (req, res) => {
   try {
+    const notificationId = req.params.id;
 
-const notificationId =req.params.id
+    await Notification.findById({
+      _id: notificationId,
+    });
 
-    const Notificationdata = await Notification.findById({_id:notificationId})
-
-
-
-    await Notification.updateOne({_id : notificationId},{
-      $set : {
-        read : 'Readed'
+    await Notification.updateOne(
+      { _id: notificationId },
+      {
+        $set: {
+          read: "Readed",
+        },
       }
-    })
+    );
 
-    res.status(200).json({ message: 'Notification update suceessfull ', success: true })
-
+    res
+      .status(200)
+      .json({ message: "Notification update suceessfull ", success: true });
   } catch (error) {
-    res.status(500).json({ message: 'Notification update Failed ', success: false })
-    console.log(error)
+    res
+      .status(500)
+      .json({ message: "Notification update Failed ", success: false });
+    console.log(error);
   }
-}
-
-
+};
 
 const GetUserwithFollowup = async (req, res) => {
   try {
@@ -240,8 +237,13 @@ const GetDataDashboard = async (req, res) => {
     `;
     const followupusers = await db.query(GetFollowUpUser);
 
-    res.status(200).send({ message: " Data Fetched ", totalusers , nonfollowupusers , followupusers , success : true});
-
+    res.status(200).send({
+      message: " Data Fetched ",
+      totalusers,
+      nonfollowupusers,
+      followupusers,
+      success: true,
+    });
   } catch (error) {
     res.status(500).send({ message: " Error in Backend ", error });
   }
@@ -258,5 +260,5 @@ module.exports = {
   GetUserwithFollowup,
   GetUserWithoutFollowup,
   GetDataDashboard,
-  UpdateNotification
+  UpdateNotification,
 };

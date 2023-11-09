@@ -1,47 +1,52 @@
-const express = require("express")
-const router = express.Router()
-const Controller = require("../Controller/AdminController")
-const auth = require("../Middlewares/Adminauth")
-
-
+const express = require("express");
+const router = express.Router();
+const Controller = require("../Controller/AdminController");
+const auth = require("../Middlewares/Adminauth");
 
 const multer = require("multer");
 const path = require("path");
 const storage = multer.diskStorage({
-    destination : (req , res , cb ) => {
-        cb(null , 'public/uploads')
-    },
-    filename : (req , file , cb ) => {
-       cb(null , file.fieldname + "_" + Date.now() + path.extname(file.originalname) )
-    }
-})
+  destination: (req, res, cb) => {
+    cb(null, "public/uploads");
+  },
+  filename: (req, file, cb) => {
+    cb(
+      null,
+      file.fieldname + "_" + Date.now() + path.extname(file.originalname)
+    );
+  },
+});
 const uploads = multer({
-    storage : storage
-})
+  storage: storage,
+});
 
+router.post("/login", Controller.adminLogin);
 
+router.get("/userlist", auth, Controller.GetUserData);
 
+router.get("/user/:id", auth, Controller.GetSingleuser);
 
-router.post('/login',Controller.adminLogin)
+router.post("/follow-up/:id", auth, uploads.single("data"), Controller.CreateFollowup);
 
-router.get('/userlist' ,auth,Controller.GetUserData)
+router.get("/followup-status/:id", auth, Controller.GetFollowUp);
 
-router.get('/user/:id', auth , Controller.GetSingleuser)
+router.put(
+  "/followup-edit/:id",
+  auth,
+  uploads.single("data"),
+  Controller.EditFolloup
+);
 
-router.post('/follow-up/:id', auth, Controller.CreateFollowup)
+router.get("/notification", auth, Controller.GetNotification);
 
-router.get('/followup-status/:id',auth, Controller.GetFollowUp)
+router.get("/getuserwithfollowup", auth, Controller.GetUserwithFollowup);
 
-router.put('/followup-edit/:id',auth, uploads.single("data"), Controller.EditFolloup)
+router.get("/getuserwithoutfollowup", auth, Controller.GetUserWithoutFollowup);
 
-router.get('/notification', auth , Controller.GetNotification)
+router.get("/dashboard", auth, Controller.GetDataDashboard);
 
-router.get('/getuserwithfollowup',auth , Controller.GetUserwithFollowup)
+router.put("/updatenotification/:id", auth, Controller.UpdateNotification);
 
-router.get('/getuserwithoutfollowup',auth , Controller.GetUserWithoutFollowup)
+router.get("/");
 
-router.get('/dashboard' , auth , Controller.GetDataDashboard)
-
-router.put('/updatenotification/:id',auth,Controller.UpdateNotification)
-
-module.exports = router
+module.exports = router;

@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { adminRequest } from "../../axios";
+import Badge from "react-bootstrap/Badge";
+import { toast } from 'react-toastify';
+
 
 function UsersList() {
   const [search, setSearch] = useState("");
-  const [data, setData] = useState(null);
+  const [notificationcount, setNotificationcount] = useState(null);
   const [followup, setFollowup] = useState(null);
   const [nonfollowup, setNonfollowup] = useState(null);
   const [showFollowup, setShowFollowup] = useState(true);
@@ -16,8 +19,6 @@ function UsersList() {
     localStorage.removeItem("admin_Secret");
     navigate("/admin/login");
   };
-
- 
 
   useEffect(() => {
     adminRequest({
@@ -34,10 +35,22 @@ function UsersList() {
       method: "GET",
     }).then((response) => {
       setNonfollowup(response.data);
+    }).catch((error) => {
+      toast.error("something is wrong login again");
+      localStorage.removeItem("admin_Secret");
+      navigate("/admin/login");
     });
   }, []);
 
-  
+  useEffect(() => {
+    adminRequest({
+      url: "/api/admin/notification",
+      method: "GET",
+    }).then((response) => {
+      setNotificationcount(response.data.notification.length);
+    });
+  }, []);
+  console.log(notificationcount);
 
   const userList = showFollowup ? followup : nonfollowup;
 
@@ -46,7 +59,7 @@ function UsersList() {
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
         <div className="container-fluid">
           <Link to={""} className="navbar-brand">
-            Brand
+            Kentra Edu
           </Link>
           <button
             type="button"
@@ -65,9 +78,9 @@ function UsersList() {
                 Users
               </Link>
               <Link to={"/admin/notification"} className="nav-item nav-link">
-               Notification
+                Notification
+                <Badge bg="secondary">{notificationcount}</Badge>
               </Link>
-           
             </div>
             <div className="navbar-nav ms-auto">
               <Link to={handleLogout} className="nav-item nav-link">
@@ -101,22 +114,20 @@ function UsersList() {
             </button>
 
             <button
-            type="button"
-            class="navbar-toggler"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarCollapse"
-            onClick={() => setShowFollowup(false)}
-          >
-            Non Follow-up Users
-          </button>
+              type="button"
+              class="navbar-toggler"
+              data-bs-toggle="collapse"
+              data-bs-target="#navbarCollapse"
+              onClick={() => setShowFollowup(false)}
+            >
+              Non Follow-up Users
+            </button>
           </form>
         </nav>
       </div>
 
       <div className="container">
         <div className="row">
-         
-
           {userList
             ?.filter((users) =>
               search.toLowerCase() === ""
@@ -132,12 +143,10 @@ function UsersList() {
                       <p className="text-muted mb-0">{item.email}</p>
                     </div>
                   </div>
-                  <Link
-                    className="btn btn-link btn-rounded btn-sm"
-                    to={`/admin/user/${item.id}`}
-                    role="button"
-                  >
-                    View
+                  <Link to={`/admin/user/${item.id}`} role="button">
+                    <button className="btn text-white bg-danger btn-rounded btn-sm">
+                      View
+                    </button>
                   </Link>
                 </li>
               </ul>

@@ -21,25 +21,29 @@ const registeruser = async (req, res) => {
       [name, graduation, email, mobile, age, gender],
       (error, result) => {
         if (error) {
-          console.log({ message: "error", error, success: false });
+          res.status(500).send({
+            message: "email or mobile already registered",
+            error,
+            success: false,
+          });
         } else {
-            res
-              .status(200)
-              .send({ message: "Register Successfull", result, success: true });
+          res
+            .status(200)
+            .send({ message: "Register Successfull", result, success: true });
           const NotificationData = new Notification({
             username: name,
             email: email,
+            mobile: mobile,
           });
           console.log(NotificationData);
 
-          NotificationData.save()   
+          NotificationData.save()
             .then(() => {
               console.log("Notification Data Added successfully");
             })
             .catch((mongoError) => {
               console.error("Error Adding In  MongoDb", mongoError);
             });
-
         }
       }
     );
