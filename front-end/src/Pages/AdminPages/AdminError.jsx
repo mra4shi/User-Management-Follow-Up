@@ -23,7 +23,7 @@ function AdminErrorPage() {
           <div class="text-center">
             <h1>You Have Entered Wrong Admin Url Please Check The Link</h1>
 
-            <Link to={"/"}>
+            <Link to={"/admin/home"}>
               <button class="btn btn-primary">Back Home</button>
             </Link>
           </div>

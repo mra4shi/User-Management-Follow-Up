@@ -8,7 +8,7 @@ import Badge from "react-bootstrap/Badge";
 function Notification() {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
-  const notificationsPerPage = 3;
+  const notificationsPerPage = 2;
   const [notification, setNotification] = useState();
   const [notificationcount, setNotificationcount] = useState(null);
 
@@ -34,15 +34,17 @@ function Notification() {
     adminRequest({
       url: "/api/admin/notification",
       method: "GET",
-    }).then((response) => {
-      console.log(response);
-      setNotification(response.data.notification);
-      setNotificationcount(response.data.notification.length);
-    }).catch((error) => {
-      toast.error("something is wrong login again");
-      localStorage.removeItem("admin_Secret");
-      navigate("/admin/login");
-    });
+    })
+      .then((response) => {
+        console.log(response);
+        setNotification(response.data.notification);
+        setNotificationcount(response.data.notification.length);
+      })
+      .catch((error) => {
+        toast.error("something is wrong login again");
+        localStorage.removeItem("admin_Secret");
+        navigate("/admin/login");
+      });
   };
 
   const handleclick = (notificationId) => {
@@ -72,47 +74,53 @@ function Notification() {
 
   return (
     <div>
-      <nav className="navbar navbar-expand-lg navbar-light bg-light">
-        <div className="container-fluid">
-          <Link className="navbar-brand">Kentra Edu</Link>
-          <button
-            type="button"
-            className="navbar-toggler"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarCollapse"
-          >
-            <span className="navbar-toggler-icon"></span>
-          </button>
-          <div className="collapse navbar-collapse" id="navbarCollapse">
-            <div className="navbar-nav">
-              <Link to={"/admin/home"} className="nav-item nav-link active">
-                Dashboard
-              </Link>
-              <Link to={"/admin/userlist"} className="nav-item nav-link">
-                Users
-              </Link>
-              <Link to={"/admin/notification"} className="nav-item nav-link">
-                Notification
-                <Badge bg="secondary">{notificationcount}</Badge>
-              </Link>
-            </div>
-            <div className="navbar-nav ms-auto">
-              <Link to={handleLogout} className="nav-item nav-link">
-                LogOut
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+  <nav class="bg-white border-gray-200 dark:bg-gray-900">
+  <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+    <Link to="/admin/home" class="flex items-center space-x-3 rtl:space-x-reverse">
+        <img src="https://flowbite.com/docs/images/logo.svg" class="h-8" alt="Flowbite Logo" />
+        <span class="self-center text-2xl font-semibold whitespace-nowrap">KentraEdu</span>
+    </Link>
+    <div class=" w-full md:block md:w-auto" id="navbar-default">
+      <ul class="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
+        
+      <li>
+          <Link to="/admin/home" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent " aria-controls="navbar-default" aria-expanded="true">Home</Link>
+        </li>
+
+        <li>
+          <Link to="/admin/userlist" class="block py-2 px-3 text-black  rounded md:bg-white md:text-blue-700 md:p-0 dark:text-black md:dark:text-blue-500" >User List</Link>
+        </li>
+        <li>
+          <Link to="/admin/register" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Register</Link>
+        </li>
+        <li>
+          <Link to="/admin/notification" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Notification <span class=" top-0 right-0 px-2 py-1 translate-x-1/2 bg-red-500 rounded-full text-xs text-white">
+                {notificationcount}
+            </span>
+         
+          </Link>
+        </li>
+        
+        <li>
+          <button onClick={handleLogout} class="block py-2 px-3 text-gray-900 rounded hover:bg-black md:border-0 hover:text-white md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">LogOut</button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
 
       <div className="container ">
         {currentNotifications?.map((value) => (
-          <div className="card" key={value._id} style={{ width: "18rem" }}>
+          <div
+            className="card d-flex justify-content-between align-items-center" 
+            key={value._id}
+            style={{ width: "18rem" , backgroundColor : '#FAFAD2' }}
+          >
             <div className="card-body">
               <h5 className="card-title">New User Registration</h5>
               <h6 className="card-subtitle mb-2 text-muted">User Info.</h6>
               <p className="card-text">
-                Mr/Ms {value.username} Registered With <br /> Mobile :{" "}
+                Mr/Ms : {value.username} Registered With <br /> Mobile :{" "}
                 {value.mobile} <br /> Email : {value.email}
               </p>
               <h4>{SetDate}</h4>
@@ -126,7 +134,10 @@ function Notification() {
             </div>
           </div>
         ))}
-        <nav aria-label="Page navigation example">
+        <nav
+          aria-label="Page navigation example d-flex"
+          className="d-flex justify-content-center mb-5"
+        >
           <ul className="pagination">
             <li className="page-item">
               <button

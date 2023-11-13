@@ -22,20 +22,17 @@ const uploads = multer({
 
 router.post("/login", Controller.adminLogin);
 
+router.post('/register',uploads.single("data"), Controller.registeruser)
+
 router.get("/userlist", auth, Controller.GetUserData);
 
 router.get("/user/:id", auth, Controller.GetSingleuser);
 
-router.post("/follow-up/:id", auth, uploads.single("data"), Controller.CreateFollowup);
+router.post("/follow-up/:id", uploads.single("data"), Controller.CreateFollowup);
 
 router.get("/followup-status/:id", auth, Controller.GetFollowUp);
 
-router.put(
-  "/followup-edit/:id",
-  auth,
-  uploads.single("data"),
-  Controller.EditFolloup
-);
+router.put("/followup-edit/:id",auth,uploads.single("data"),Controller.EditFolloup);
 
 router.get("/notification", auth, Controller.GetNotification);
 
@@ -46,6 +43,9 @@ router.get("/getuserwithoutfollowup", auth, Controller.GetUserWithoutFollowup);
 router.get("/dashboard", auth, Controller.GetDataDashboard);
 
 router.put("/updatenotification/:id", auth, Controller.UpdateNotification);
+
+
+
 
 router.get("/");
 

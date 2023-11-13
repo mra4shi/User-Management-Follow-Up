@@ -19,8 +19,8 @@ function Home() {
 
       <div className="container" >
         <div className="row ">
-          <div className="col-md-4">
-            <div class="card " style={{ width: "20rem"}}>
+          <div className= "col-md-4">
+            <div class="card " style={{ width: "20rem" , backgroundColor :'#FFDEAD'}}>
               <img
               style={{height : '18rem' }}
                 class="card-img-top"
@@ -43,7 +43,7 @@ function Home() {
                 src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Sachin-Tendulkar_%28cropped%29.jpg/330px-Sachin-Tendulkar_%28cropped%29.jpg"
                 alt="Card image cap"
               />
-              <div class="card-body  " style={{height : '18rem' }}>
+              <div class="card-body  " style={{height : '18rem' ,backgroundColor :'#FFDEAD' }}>
                 <h1 class="card-title">Akshay Kumar</h1>
                 <h4 class="card-title">Placed @ Jupitor Prvt Ltd</h4>
                 <p class="card-text">Fresher with High Package</p>
@@ -59,7 +59,7 @@ function Home() {
                 src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Virat_Kohli_during_the_India_vs_Aus_4th_Test_match_at_Narendra_Modi_Stadium_on_09_March_2023.jpg/330px-Virat_Kohli_during_the_India_vs_Aus_4th_Test_match_at_Narendra_Modi_Stadium_on_09_March_2023.jpg"
                 alt="Card image cap"
               />
-              <div class="card-body" style={{height : '18rem' }}>
+              <div class="card-body" style={{height : '18rem' , backgroundColor :'#FFDEAD' }}>
                 <h1 class="card-title">Rahul A</h1>
                 <h4 class="card-title">Placed @ Nixon Prvt Ltd</h4>
                 <p class="card-text">Achieved His True Goal With His Work Ethic</p>
@@ -79,6 +79,12 @@ function Home() {
           <div className="col">
             <h1>If You Want To Get Placed In A Good Company</h1>
           </div>
+        </div>
+      </div>
+
+      <div className="container">
+        <div className="row mb-5">
+          <img src="https://blog.stucred.com/wp-content/uploads/2019/08/placement-consultants.jpg" alt="" />
         </div>
       </div>
     </div>

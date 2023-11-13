@@ -2,6 +2,9 @@
 .card {
     margin-bottom: 4rem;
     background-color: rgb(247, 247, 247);
+    position: relative;
+    justify-content: center;
+    align-items: center;
 }
 
 .cardClass {

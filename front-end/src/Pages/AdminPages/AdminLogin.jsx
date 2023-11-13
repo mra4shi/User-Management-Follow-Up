@@ -32,11 +32,11 @@ function AdminLogin() {
     <div>
 
 
-<section class="vh-100" style={{ backgroundColor: "#eee" }}>
-        <div class="container h-100%">
+<section class="vh-100 " style={{ backgroundColor: "#eee" }}>
+        <div class="container h-100%  ">
           <div class="row d-flex justify-content-center align-items-center h-100%">
             <div class="col-lg-12 col-xl-11">
-              <div class="card text-black" style={{ borderRadius: "25px" }}>
+              <div class="card text-black mt-5" style={{ borderRadius: "25px" }}>
                 <div class="card-body p-md-5">
                   <div class="row justify-content-center">
                     <div class="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1">
@@ -86,7 +86,7 @@ function AdminLogin() {
                     </div>
                     <div class="col-md-10 col-lg-6 col-xl-7 d-flex align-items-center order-1 order-lg-2">
                       <img
-                        src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-registration/draw1.webp"
+                        src="https://imagedelivery.net/7a7BghXfEmMHfPiDMUvEIw/85949703-9641-4b45-973d-0cdeba34dd00/w=1024"
                         class="img-fluid"
                         alt="Sample image"
                       />

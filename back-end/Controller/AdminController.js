@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const { Client } = require("pg");
 const Notification = require("../Models/NotificationModel");
+const Followup = require("../Models/FollowupModel");
 
 const db = new Client({
   host: "localhost",
@@ -15,6 +16,51 @@ db.connect();
 const adminEmail = "admin@gmail.com";
 const adminPassword = "123";
 const adminSecret = "adminToken";
+
+
+const registeruser = async (req, res) => {
+  try {
+    const { name, graduation, email, mobile, age, gender } = req.body;
+    const sqlInsert = `INSERT INTO userdata (name,graduation,email,mobile,age,gender) VALUES ($1 , $2 , $3 , $4 , $5 , $6 )`;
+
+    db.query(
+      sqlInsert,
+      [name, graduation, email, mobile, age, gender],
+      (error, result) => {
+        if (error) {
+          res.status(500).send({
+            message: "email or mobile already registered",
+            error,
+            success: false,
+          });
+        } else {
+          res
+            .status(200)
+            .send({ message: "Register Successfull", result, success: true });
+          const NotificationData = new Notification({
+            username: name,
+            email: email,
+            mobile: mobile,
+          });
+          console.log(NotificationData);
+
+          NotificationData.save()
+            .then(() => {
+              console.log("Notification Data Added successfully");
+            })
+            .catch((mongoError) => {
+              console.error("Error Adding In  MongoDb", mongoError);
+            });
+        }
+      }
+    );
+  } catch (error) {
+    res
+      .status(500)
+      .send({ message: "Error in Backend ", error, success: false });
+  }
+};
+
 
 const adminLogin = (req, res) => {
   if (req.body.email === adminEmail && req.body.password === adminPassword) {
@@ -70,22 +116,26 @@ const GetSingleuser = async (req, res) => {
 const CreateFollowup = async (req, res) => {
   try {
     const id = req.params.id;
+  
 
-    console.log(req.body);
+    const { username, followup } = req.body;
 
-    const status = req.body.status;
+    const date = Date.now();
 
-    const follow_up_date = new Date();
-    console.log(follow_up_date);
+    const newfollowup = new Followup({
+      userid: id,
+      username: username,
+      followup: followup,
+      date: date,
+    });
 
-    const sqlInsert = `INSERT INTO follow_up(user_id,status,follow_up_date) VALUES ( $1 , $2 , $3)`;
+    await newfollowup.save();
 
-    db.query(sqlInsert, [id, status, follow_up_date], (error, result) => {
-      if (result) {
-        res.send(result);
-      } else {
-        console.log(error);
-      }
+    console.log(newfollowup);
+
+    res.status(200).json({
+      message: "FollowUp Added Successfull",
+      success: true,
     });
   } catch (error) {
     console.log(error);
@@ -179,9 +229,9 @@ const UpdateNotification = async (req, res) => {
 const GetUserwithFollowup = async (req, res) => {
   try {
     const query = `
-      SELECT u.* 
-      FROM userdata u
-      INNER JOIN follow_up f ON u.id = f.user_id
+    SELECT u.* 
+    FROM userdata u
+    INNER JOIN follow_up f ON u.id = f.user_id
     `;
     const result = await db.query(query);
 
@@ -198,10 +248,18 @@ const GetUserwithFollowup = async (req, res) => {
 const GetUserWithoutFollowup = async (req, res) => {
   try {
     const query = `
-      SELECT u.* 
-      FROM userdata u
-      LEFT JOIN follow_up f ON u.id = f.user_id
-      WHERE f.user_id IS NULL
+      (
+        SELECT u.*
+        FROM userdata u
+        LEFT JOIN follow_up f ON u.id = f.user_id
+        WHERE f.user_id IS NULL
+      ) UNION ALL
+      (
+        SELECT u.*
+        FROM userdata u
+        INNER JOIN follow_up f ON u.id = f.user_id
+        WHERE f.status = 'Rejected'
+      )
     `;
 
     const result = await db.query(query);
@@ -233,7 +291,7 @@ const GetDataDashboard = async (req, res) => {
     const GetFollowUpUser = `
       SELECT u.* 
       FROM userdata u
-      INNER JOIN follow_up f ON u.id = f.user_id
+      INNER JOIN follow_up f ON u.id = f.user_id    
     `;
     const followupusers = await db.query(GetFollowUpUser);
 
@@ -261,4 +319,5 @@ module.exports = {
   GetUserWithoutFollowup,
   GetDataDashboard,
   UpdateNotification,
+  registeruser
 };

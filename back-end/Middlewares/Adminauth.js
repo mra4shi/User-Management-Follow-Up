@@ -15,7 +15,6 @@ module.exports = async (req, res, next) => {
 
     jwt.verify(token, admin_Secret, (err, decoded) => {
       if (err) {
-        console.log("error midddlewhare");
         return res.status(401).send({ message: "Auth failed", success: false });
       } else {
         req.body.adminId = decoded.id;
