@@ -33,15 +33,14 @@ function AdminDashboard() {
       method: "GET",
     })
       .then((response) => {
-        console.log(response);
+        console.log(response,"getusercount");
         setUsercount(response.data.totalusers.rowCount);
-        setFollowupusercount(response.data.followupusers.rowCount);
-        setNonfollowupusercount(response.data.nonfollowupusers.rowCount);
+        // setFollowupusercount(response.data.followupusers.rowCount);
+        // setNonfollowupusercount(response.data.nonfollowupusers.rowCount);
       })
       .catch((error) => {
-        toast.error("something is wrong login again");
-        localStorage.removeItem("admin_Secret");
-        navigate("/admin/login");
+       console.log(error,"getusercount")
+       
       });
   }, []);
 
@@ -65,9 +64,7 @@ function AdminDashboard() {
         <li>
           <Link to="/admin/userlist" class="block py-2 px-3 text-black  rounded md:bg-white md:text-blue-700 md:p-0 dark:text-black md:dark:text-blue-500" >User List</Link>
         </li>
-        <li>
-          <Link to={"/admin/register"} class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Register</Link>
-        </li>
+       
         <li>
           <Link to="/admin/notification" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Notification <span class=" top-0 right-0 px-2 py-1 translate-x-1/2 bg-red-500 rounded-full text-xs text-white">
                 {notificationcount}

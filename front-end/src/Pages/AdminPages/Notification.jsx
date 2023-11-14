@@ -7,11 +7,11 @@ import Badge from "react-bootstrap/Badge";
 
 function Notification() {
   const navigate = useNavigate();
-  const [currentPage, setCurrentPage] = useState(1);
-  const notificationsPerPage = 2;
   const [notification, setNotification] = useState();
   const [notificationcount, setNotificationcount] = useState(null);
-
+  
+  const [currentPage, setCurrentPage] = useState(1);
+  const notificationsPerPage = 2;
   const indexOfLastNotification = currentPage * notificationsPerPage;
   const indexOfFirstNotification =
     indexOfLastNotification - notificationsPerPage;
@@ -117,11 +117,10 @@ function Notification() {
             style={{ width: "18rem" , backgroundColor : '#FAFAD2' }}
           >
             <div className="card-body">
-              <h5 className="card-title">New User Registration</h5>
+              <h5 className="card-title">Today FollowUp User</h5>
               <h6 className="card-subtitle mb-2 text-muted">User Info.</h6>
               <p className="card-text">
-                Mr/Ms : {value.username} Registered With <br /> Mobile :{" "}
-                {value.mobile} <br /> Email : {value.email}
+                Mr/Ms : {value.username}  <br /> 
               </p>
               <h4>{SetDate}</h4>
 

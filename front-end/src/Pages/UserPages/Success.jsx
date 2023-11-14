@@ -17,7 +17,7 @@ function Success() {
                 <div class="text-center">
                     <h1>Thank You !</h1>
                     <p>We Will Review Your Registration  </p>
-                    <Link to={'/'}>
+                    <Link to={'/admin/home'}>
                     <button class="btn btn-primary">Back Home</button>
                     </Link>
                 </div>

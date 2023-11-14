@@ -32,18 +32,18 @@ router.post("/follow-up/:id", uploads.single("data"), Controller.CreateFollowup)
 
 router.get("/followup-status/:id", auth, Controller.GetFollowUp);
 
-router.put("/followup-edit/:id",auth,uploads.single("data"),Controller.EditFolloup);
-
 router.get("/notification", auth, Controller.GetNotification);
 
 router.get("/getuserwithfollowup", auth, Controller.GetUserwithFollowup);
-
-router.get("/getuserwithoutfollowup", auth, Controller.GetUserWithoutFollowup);
 
 router.get("/dashboard", auth, Controller.GetDataDashboard);
 
 router.put("/updatenotification/:id", auth, Controller.UpdateNotification);
 
+
+router.get('/fetchfollowup/:id',auth,Controller.GetFollowUps)
+
+router.post('/search' ,uploads.single("data"),Controller.UserSearch )
 
 
 

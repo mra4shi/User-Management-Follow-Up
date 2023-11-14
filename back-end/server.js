@@ -17,7 +17,7 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
-const mongoURL = "mongodb://localhost:27017/Notification";
+const mongoURL = "mongodb://localhost:27017/Followup";
 
  mongoose.connect(mongoURL,{
     useNewUrlParser: true,

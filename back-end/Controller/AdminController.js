@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const { Client } = require("pg");
 const Notification = require("../Models/NotificationModel");
 const Followup = require("../Models/FollowupModel");
+const FollowUp = require("../Models/FollowupModel");
 
 const db = new Client({
   host: "localhost",
@@ -16,7 +17,6 @@ db.connect();
 const adminEmail = "admin@gmail.com";
 const adminPassword = "123";
 const adminSecret = "adminToken";
-
 
 const registeruser = async (req, res) => {
   try {
@@ -37,20 +37,6 @@ const registeruser = async (req, res) => {
           res
             .status(200)
             .send({ message: "Register Successfull", result, success: true });
-          const NotificationData = new Notification({
-            username: name,
-            email: email,
-            mobile: mobile,
-          });
-          console.log(NotificationData);
-
-          NotificationData.save()
-            .then(() => {
-              console.log("Notification Data Added successfully");
-            })
-            .catch((mongoError) => {
-              console.error("Error Adding In  MongoDb", mongoError);
-            });
         }
       }
     );
@@ -60,7 +46,6 @@ const registeruser = async (req, res) => {
       .send({ message: "Error in Backend ", error, success: false });
   }
 };
-
 
 const adminLogin = (req, res) => {
   if (req.body.email === adminEmail && req.body.password === adminPassword) {
@@ -116,22 +101,30 @@ const GetSingleuser = async (req, res) => {
 const CreateFollowup = async (req, res) => {
   try {
     const id = req.params.id;
-  
 
-    const { username, followup } = req.body;
-
-    const date = Date.now();
+    const { username, followup, status, date } = req.body;
 
     const newfollowup = new Followup({
       userid: id,
       username: username,
       followup: followup,
+      status: status,
       date: date,
     });
 
     await newfollowup.save();
 
     console.log(newfollowup);
+
+    const newNotification = new Notification({
+      username : username,
+      date : date,
+      userid : id
+    })
+
+    await newNotification.save()
+
+    console.log(newNotification)
 
     res.status(200).json({
       message: "FollowUp Added Successfull",
@@ -146,47 +139,27 @@ const GetFollowUp = async (req, res) => {
   try {
     const id = req.params.id;
 
-    const sqlGet = `SELECT * FROM follow_up WHERE user_id = $1`;
+    const followups = await FollowUp.find({ userid: id });
 
-    const result = await db.query(sqlGet, [id]);
-
-    if (result) {
-      res.send(result);
-    } else {
-      console.log(err);
-      res.status(500).send("Error in Backend");
-    }
+    res.status(200).send({
+      message: "Fetched followups",
+      success: true,
+      followups,
+    });
   } catch (error) {
     console.log(error);
     res.status(500).send("Error in Backend");
   }
 };
 
-const EditFolloup = async (req, res) => {
-  try {
-    const id = req.params.id;
-
-    const { status } = req.body;
-
-    const follow_up_date = new Date();
-
-    const sqlUpdate = `UPDATE follow_up SET status = $1 ,follow_up_date = $2 WHERE user_id = $3`;
-
-    const result = await db.query(sqlUpdate, [status, follow_up_date, id]);
-
-    if (result) {
-      res.send(result);
-    } else {
-      console.log(error);
-    }
-  } catch (error) {
-    console.log(error);
-  }
-};
-
 const GetNotification = async (req, res) => {
   try {
-    const notification = await Notification.find({ read: "Unread" });
+    const today = new Date().toISOString().split('T')[0]; 
+    
+    
+    
+    const notification = await Notification.find({ read:'Unread',date: today});
+ 
     res
       .status(200)
       .send({ message: "Notification fetched", notification, success: true });
@@ -229,9 +202,8 @@ const UpdateNotification = async (req, res) => {
 const GetUserwithFollowup = async (req, res) => {
   try {
     const query = `
-    SELECT u.* 
-    FROM userdata u
-    INNER JOIN follow_up f ON u.id = f.user_id
+    SELECT * 
+    FROM userdata 
     `;
     const result = await db.query(query);
 
@@ -245,61 +217,14 @@ const GetUserwithFollowup = async (req, res) => {
   }
 };
 
-const GetUserWithoutFollowup = async (req, res) => {
-  try {
-    const query = `
-      (
-        SELECT u.*
-        FROM userdata u
-        LEFT JOIN follow_up f ON u.id = f.user_id
-        WHERE f.user_id IS NULL
-      ) UNION ALL
-      (
-        SELECT u.*
-        FROM userdata u
-        INNER JOIN follow_up f ON u.id = f.user_id
-        WHERE f.status = 'Rejected'
-      )
-    `;
-
-    const result = await db.query(query);
-
-    res.json(result.rows);
-  } catch (error) {
-    console.error("Error fetching users without follow-ups:", error);
-    res.status(500).json({
-      message: "Error fetching users without follow-ups",
-      success: false,
-    });
-  }
-};
-
 const GetDataDashboard = async (req, res) => {
   try {
     const GetAllUser = "SELECT * FROM userdata";
     const totalusers = await db.query(GetAllUser);
 
-    const GetNonFollowUpUser = `
-      SELECT u.* 
-      FROM userdata u
-      LEFT JOIN follow_up f ON u.id = f.user_id
-      WHERE f.user_id IS NULL
-    `;
-
-    const nonfollowupusers = await db.query(GetNonFollowUpUser);
-
-    const GetFollowUpUser = `
-      SELECT u.* 
-      FROM userdata u
-      INNER JOIN follow_up f ON u.id = f.user_id    
-    `;
-    const followupusers = await db.query(GetFollowUpUser);
-
     res.status(200).send({
       message: " Data Fetched ",
       totalusers,
-      nonfollowupusers,
-      followupusers,
       success: true,
     });
   } catch (error) {
@@ -307,17 +232,60 @@ const GetDataDashboard = async (req, res) => {
   }
 };
 
+const GetFollowUps = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const followups = await FollowUp.find({ userid: id });
+
+    res.status(200).send({
+      message: "Fecthed Followups",
+      success: true,
+      followups,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      message: "Error In Fetching Followups",
+      success: false,
+    });
+  }
+};
+
+
+const UserSearch = async ( req ,res) => {
+
+ 
+
+
+try {
+      const { searchTerm } = req.body;
+
+      const result = await db.query(
+        'SELECT * FROM userdata WHERE name LIKE $1',
+        [`%${searchTerm}%`]
+      );
+  
+      res.json(result.rows);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+    
+  
+}
+
 module.exports = {
   adminLogin,
   GetUserData,
   GetSingleuser,
   CreateFollowup,
   GetFollowUp,
-  EditFolloup,
   GetNotification,
   GetUserwithFollowup,
-  GetUserWithoutFollowup,
   GetDataDashboard,
   UpdateNotification,
-  registeruser
+  registeruser,
+  GetFollowUps,
+  UserSearch
 };

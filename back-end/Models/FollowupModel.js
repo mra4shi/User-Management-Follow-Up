@@ -13,11 +13,14 @@ const FollowupModel = mongoose.Schema({
     type: String,
     required: true,
   },
-  date: {
-    type: Date,
+  status: {
+    type: String,
     required: true,
   },
- 
+  date: {
+    type: String,
+    required: true,
+  },
 });
 
 const FollowUp = mongoose.model("followup", FollowupModel);

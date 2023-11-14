@@ -5,21 +5,17 @@ const NotificationModel = mongoose.Schema({
     type: String,
     required: true,
   },
-  email: {
-    type: String,
-    required: true,
-  },
-  mobile: {
-    type: String,
-    required: true,
+  userid : {
+    type : String,
+    required : true
   },
   read: {
     type: String,
     default: "Unread",
   },
   date: {
-    type: Date,
-    default: Date.now,
+    type: String,
+    required : true
   },
 });
 

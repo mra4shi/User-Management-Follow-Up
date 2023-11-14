@@ -12,7 +12,9 @@ function FollowUp() {
 
   const [form, setForm] = useState({
     username:"",
-    followup:""
+    followup:"",
+    status :"",
+    date : ""
   });
   const handleLogout = (e) => {
     e.preventDefault();
@@ -35,7 +37,8 @@ function FollowUp() {
       const formDataToSend = new FormData();
       formDataToSend.append("username",form.username)
       formDataToSend.append("followup", form.followup);
-
+      formDataToSend.append("status",form.status)
+      formDataToSend.append("date",form.date)
       const response = await adminRequest({
         url: `/api/admin/follow-up/${id}`,
         method: "POST",
@@ -152,6 +155,43 @@ function FollowUp() {
                 class="bg-gray-200 border rounded  text-xs font-medium leading-none text-gray-800 py-3 w-full pl-3 mt-2"
               />
             </div>
+
+            <div>
+              <label
+                id="email"
+                class="text-sm font-medium leading-none text-gray-800"
+              >
+                Status
+              </label>
+              <input
+                 type="text"
+                 placeholder="status"
+                 name="status"
+                 onChange={handleChange}
+                aria-labelledby="tet"
+              
+                class="bg-gray-200 border rounded  text-xs font-medium leading-none text-gray-800 py-3 w-full pl-3 mt-2"
+              />
+            </div>
+
+            <div>
+              <label
+                id="email"
+                class="text-sm font-medium leading-none text-gray-800"
+              >
+                Status
+              </label>
+              <input
+                 type="date"
+                 placeholder="Date"
+                 name="date"
+                 onChange={handleChange}
+                aria-labelledby="tet"
+              
+                class="bg-gray-200 border rounded  text-xs font-medium leading-none text-gray-800 py-3 w-full pl-3 mt-2"
+              />
+            </div>
+
             <div class="mt-6  w-full">
               <label
                 for="pass"
@@ -183,7 +223,7 @@ function FollowUp() {
                 type="submit"
                 class="focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 text-sm font-semibold leading-none text-white focus:outline-none bg-indigo-700 border rounded hover:bg-indigo-600 py-4 w-full"
               >
-                Create my account
+                Add FollowUp
               </button>
             </div>
             </form>

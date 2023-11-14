@@ -26,7 +26,7 @@ function App() {
       <ToastContainer position="top-center" />
 
       <Routes>
-        <Route path="/success" element={<Success />} />
+        <Route path="/admin/success" element={<Success />} />
 
         {/* ADMIN SECTION */}
 
