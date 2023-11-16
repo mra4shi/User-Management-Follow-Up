@@ -35,8 +35,7 @@ function AdminDashboard() {
       .then((response) => {
         console.log(response,"getusercount");
         setUsercount(response.data.totalusers.rowCount);
-        // setFollowupusercount(response.data.followupusers.rowCount);
-        // setNonfollowupusercount(response.data.nonfollowupusers.rowCount);
+       
       })
       .catch((error) => {
        console.log(error,"getusercount")

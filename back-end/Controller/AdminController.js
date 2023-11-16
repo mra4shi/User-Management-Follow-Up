@@ -102,11 +102,12 @@ const CreateFollowup = async (req, res) => {
   try {
     const id = req.params.id;
 
-    const { username, followup, status, date } = req.body;
+    const {   followup, status, date } = req.body;
+    console.log(req.body)
 
     const newfollowup = new Followup({
       userid: id,
-      username: username,
+   
       followup: followup,
       status: status,
       date: date,
@@ -114,17 +115,17 @@ const CreateFollowup = async (req, res) => {
 
     await newfollowup.save();
 
-    console.log(newfollowup);
+    
 
     const newNotification = new Notification({
-      username : username,
-      date : date,
-      userid : id
-    })
+  
+      date: date,
+      userid: id,
+    });
 
-    await newNotification.save()
+    await newNotification.save();
 
-    console.log(newNotification)
+    console.log(newNotification);
 
     res.status(200).json({
       message: "FollowUp Added Successfull",
@@ -140,6 +141,7 @@ const GetFollowUp = async (req, res) => {
     const id = req.params.id;
 
     const followups = await FollowUp.find({ userid: id });
+ 
 
     res.status(200).send({
       message: "Fetched followups",
@@ -154,12 +156,13 @@ const GetFollowUp = async (req, res) => {
 
 const GetNotification = async (req, res) => {
   try {
-    const today = new Date().toISOString().split('T')[0]; 
-    
-    
-    
-    const notification = await Notification.find({ read:'Unread',date: today});
- 
+    const today = new Date().toISOString().split("T")[0];
+
+    const notification = await Notification.find({
+      read: "Unread",
+      date: today,
+    });
+
     res
       .status(200)
       .send({ message: "Notification fetched", notification, success: true });
@@ -236,6 +239,8 @@ const GetFollowUps = async (req, res) => {
   try {
     const id = req.params.id;
 
+ 
+
     const followups = await FollowUp.find({ userid: id });
 
     res.status(200).send({
@@ -251,28 +256,68 @@ const GetFollowUps = async (req, res) => {
     });
   }
 };
-
-
-const UserSearch = async ( req ,res) => {
-
  
+const UserSearch = async (req, res) => {
+  try {
+    const { searchTerm } = req.body;
 
+    const result = await db.query("SELECT * FROM userdata WHERE name LIKE $1", [
+      `%${searchTerm}%`,
+    ]);
 
-try {
-      const { searchTerm } = req.body;
+    res.json(result.rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 
-      const result = await db.query(
-        'SELECT * FROM userdata WHERE name LIKE $1',
-        [`%${searchTerm}%`]
-      );
+const EditUser = async (req, res) => {
+  try {
+
+    const id = req.params.id;
+    const {  name, graduation, age, gender, email, mobile } = req.body;
+
+    const userId = parseInt(id);
+    const ages = parseInt(age)
+
+    const updateQuery = `
+      UPDATE userdata
+      SET name = $1, graduation = $2,age = $3, gender = $4,email = $5,mobile = $6 WHERE id = $7
+    `;
+ 
+    const values = [name, graduation, ages, gender, email, mobile, userId];
   
-      res.json(result.rows);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
+
+    await db.query(updateQuery, values);
+
+    res.status(200).json({ message: "User updated successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error updating user" });
+  }
+};
+
+
+const CurrentFollowups = async (req ,res) => {
+  try {
     
-  
+    const currentDate = new Date();
+    const formattedDate = currentDate.toISOString().substring(0, 10);
+   
+    const FollowUps = await FollowUp.find({ date : formattedDate})
+    console.log(FollowUps)
+    
+    res.status(200).send({ message : "Today FollowUp Fetched" , FollowUps , success : true})
+
+  } catch (error) {
+    console.log(error)
+
+    res.status(500).send({
+      message : "error in backend",
+      success : false
+    })
+  }
 }
 
 module.exports = {
@@ -287,5 +332,7 @@ module.exports = {
   UpdateNotification,
   registeruser,
   GetFollowUps,
-  UserSearch
+  UserSearch,
+  EditUser,
+  CurrentFollowups
 };

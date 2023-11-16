@@ -45,6 +45,10 @@ router.get('/fetchfollowup/:id',auth,Controller.GetFollowUps)
 
 router.post('/search' ,uploads.single("data"),Controller.UserSearch )
 
+router.put('/edituser/:id',auth , uploads.single("data"),Controller.EditUser)
+
+
+router.get('/currentfollowups',auth , Controller.CurrentFollowups)
 
 
 router.get("/");

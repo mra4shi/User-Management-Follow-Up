@@ -10,10 +10,10 @@
    
     }
 
-    .float-right {
+    .rightss {
         float: right;
-        top: -46px;
         position: relative;
+        top: -91px;
     }
     
     .popup-inner {

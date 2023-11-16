@@ -5,13 +5,10 @@ const FollowupModel = mongoose.Schema({
     type: String,
     required: true,
   },
-  username: {
-    type: String,
-    required: true,
-  },
+   
   followup: {
     type: String,
-    required: true,
+    required: true, 
   },
   status: {
     type: String,

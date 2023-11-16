@@ -90,9 +90,7 @@ function Notification() {
         <li>
           <Link to="/admin/userlist" class="block py-2 px-3 text-black  rounded md:bg-white md:text-blue-700 md:p-0 dark:text-black md:dark:text-blue-500" >User List</Link>
         </li>
-        <li>
-          <Link to="/admin/register" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Register</Link>
-        </li>
+      
         <li>
           <Link to="/admin/notification" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Notification <span class=" top-0 right-0 px-2 py-1 translate-x-1/2 bg-red-500 rounded-full text-xs text-white">
                 {notificationcount}
@@ -123,20 +121,29 @@ function Notification() {
                 Mr/Ms : {value.username}  <br /> 
               </p>
               <h4>{SetDate}</h4>
+              <Link to={`/admin/user/${value.userid}`}>
 
               <button
                 onClick={() => handleclick(value._id, "Readed")}
                 className="card-link"
-              >
+                >
                 Mark as Read
               </button>
+                </Link>
             </div>
           </div>
         ))}
+
+        { notification?.length ===0 ? (
+<h1 className="relative justify-content-center ">No Notifications</h1>
+
+        ) : (
+          <>
+
         <nav
           aria-label="Page navigation example d-flex"
           className="d-flex justify-content-center mb-5"
-        >
+          >
           <ul className="pagination">
             <li className="page-item">
               <button
@@ -155,11 +162,11 @@ function Notification() {
                   index + 1 === currentPage ? "active" : ""
                 }`}
                 key={index}
-              >
+                >
                 <button
                   className="page-link"
                   onClick={() => handlePageChange(index + 1)}
-                >
+                  >
                   {index + 1}
                 </button>
               </li>
@@ -178,6 +185,9 @@ function Notification() {
             </li>
           </ul>
         </nav>
+
+                </>
+        )}
       </div>
     </div>
   );
