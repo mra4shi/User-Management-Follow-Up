@@ -72,40 +72,71 @@ function Notification() {
     console.log(SetDate);
   });
 
-  return (
-    <div>
-  <nav class="bg-white border-gray-200 dark:bg-gray-900">
-  <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-    <Link to="/admin/home" class="flex items-center space-x-3 rtl:space-x-reverse">
-        <img src="https://flowbite.com/docs/images/logo.svg" class="h-8" alt="Flowbite Logo" />
-        <span class="self-center text-2xl font-semibold whitespace-nowrap">KentraEdu</span>
-    </Link>
-    <div class=" w-full md:block md:w-auto" id="navbar-default">
-      <ul class="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
-        
-      <li>
-          <Link to="/admin/home" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent " aria-controls="navbar-default" aria-expanded="true">Home</Link>
-        </li>
+  const [showMenu, setShowMenu] = useState(true);
+  const handleMenuToggle = () => {
+    setShowMenu((prevState) => !prevState);
+  };
 
-        <li>
-          <Link to="/admin/userlist" class="block py-2 px-3 text-black  rounded md:bg-white md:text-blue-700 md:p-0 dark:text-black md:dark:text-blue-500" >User List</Link>
-        </li>
-      
-        <li>
-          <Link to="/admin/notification" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Notification <span class=" top-0 right-0 px-2 py-1 translate-x-1/2 bg-red-500 rounded-full text-xs text-white">
-                {notificationcount}
-            </span>
-         
-          </Link>
-        </li>
-        
-        <li>
-          <button onClick={handleLogout} class="block py-2 px-3 text-gray-900 rounded hover:bg-black md:border-0 hover:text-white md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">LogOut</button>
-        </li>
-      </ul>
-    </div>
-  </div>
-</nav>
+  return (
+    <div className="flex">
+        {/* Left Side Navigation */}
+
+        <div className="w-1/4 bg-gray-800  text-white py-6 px-4">
+          <div className="mt-6">
+            <button
+              className="block py-2 px-4 rounded  bg-gray-700"
+              onClick={handleMenuToggle}
+            >
+              Menu
+            </button>
+            {showMenu && (
+              <ul className="mt-2">
+                <Link
+                to={'/admin/userlist'}>
+                <button
+                
+                className={`block py-2 px-4 rounded ${
+                  "/admin/project-management"
+                  ? "bg-gray-800 text-white"
+                  : "text-gray-400 hover:bg-gray-700"
+                }`}
+                >
+                 Users List
+                </button>
+                  </Link>
+
+                <Link to={"/admin/home"}>
+                  <button
+                    className={`block py-2 px-4 rounded ${
+                      "/admin/home"
+                        ? "bg-gray-800 text-white"
+                        : "text-gray-400 hover:bg-gray-700"
+                    }`}
+                  >
+                    Dashboard
+                  </button>
+                </Link>
+
+                <Link to={"/admin/notification"}>
+              <button
+                className={`block py-2 px-4 rounded ${
+                  "/admin/home"
+                    ? "bg-gray-800 text-white"
+                    : "text-gray-400 hover:bg-gray-700"
+                }`}
+              >
+               Notification
+               <span class=" top-0 right-0 px-2 py-1 translate-x-1/2 bg-red-500 rounded-full text-xs text-white">
+                      {notificationcount}
+                    </span>
+                     
+              </button>
+            </Link>
+              </ul>
+            )}
+          </div>
+        </div>
+        <div className="w-3/4 bg-gray-100 p-6">
 
       <div className="container ">
         {currentNotifications?.map((value) => (
@@ -116,18 +147,16 @@ function Notification() {
           >
             <div className="card-body">
               <h5 className="card-title">Today FollowUp User</h5>
-              <h6 className="card-subtitle mb-2 text-muted">User Info.</h6>
-              <p className="card-text">
-                Mr/Ms : {value.username}  <br /> 
-              </p>
-              <h4>{SetDate}</h4>
+             
+               
+              <h4>{value.date}</h4>
               <Link to={`/admin/user/${value.userid}`}>
 
               <button
                 onClick={() => handleclick(value._id, "Readed")}
                 className="card-link"
                 >
-                Mark as Read
+                Mark as Read / View User
               </button>
                 </Link>
             </div>
@@ -190,6 +219,8 @@ function Notification() {
         )}
       </div>
     </div>
+    </div>
+
   );
 }
 

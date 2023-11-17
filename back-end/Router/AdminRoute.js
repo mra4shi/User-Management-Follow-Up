@@ -50,6 +50,8 @@ router.put('/edituser/:id',auth , uploads.single("data"),Controller.EditUser)
 
 router.get('/currentfollowups',auth , Controller.CurrentFollowups)
 
+router.delete("/deleteuser/:id",auth , Controller.DeleteUser)
+
 
 router.get("/");
 

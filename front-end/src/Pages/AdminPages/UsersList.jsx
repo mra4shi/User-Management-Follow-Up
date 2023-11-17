@@ -10,13 +10,19 @@ function UsersList() {
   const [users, setFollowup] = useState([]);
   const [seen, setSeen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [selectedListOption, setSelectedListOption] = useState(10);
   const [selectOptions, setSelectOptions] = useState([]);
   const [seenfollowup, setSeenfollowup] = useState(false);
   const [todafollowup, setTodayfollowup] = useState([]);
-  
-  const [showMenu, setShowMenu] = useState(false);
+  const [userseen, setUserseen] = useState(false);
+
+  function seenusers() {
+    setUserseen(!userseen);
+  }
+
+  const [showMenu, setShowMenu] = useState(true);
   const handleMenuToggle = () => {
     setShowMenu((prevState) => !prevState);
   };
@@ -42,27 +48,6 @@ function UsersList() {
     navigate("/admin/login");
   };
 
-  const showSwal = () => {
-    Swal.fire({
-      title: "Are you sure To Add New User?",
-      text: "You can be able to Update this User later!",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, Add it!",
-    }).then((result) => {
-      console.log(result);
-      if (result.isConfirmed) {
-        function togglepop() {
-          setSeen(!seen);
-        }
-
-        togglepop();
-      }
-    });
-  };
-
   useEffect(() => {
     adminRequest({
       url: "/api/admin/getuserwithfollowup",
@@ -83,12 +68,17 @@ function UsersList() {
 
   //Searching Section
 
-  const [searchTerm, setSearchterm] = useState("");
-  const [searchResult, setSearchresult] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResult, setSearchResult] = useState([]);
+
   const handleSearch = async () => {
-    const response = await axios.post("/api/admin/search", { searchTerm });
-    setSearchresult(response.data);
-    console.log(response.data);
+    if (searchTerm.trim()) {
+      const response = await axios.post("/api/admin/search", { searchTerm });
+      setSearchResult(response.data);
+      console.log(response.data);
+    } else {
+      console.warn("Please enter a search term");
+    }
   };
 
   //Pagination and selection Section
@@ -100,7 +90,7 @@ function UsersList() {
 
     const options = Array.from({ length: totalPages }, (_, index) => ({
       value: (index + 1) * itemsPerPage,
-      label:` ${(index + 1) * itemsPerPage}`,
+      label: ` ${(index + 1) * itemsPerPage}`,
     }));
 
     setSelectOptions(options);
@@ -110,20 +100,27 @@ function UsersList() {
     const value = event.target.value;
     setSelectedListOption(value);
 
-    setItemsPerPage(parseInt(value,10))
+    setItemsPerPage(parseInt(value, 10));
 
- 
     setCurrentPage(1);
 
     setTimeout(() => {}, 0);
   };
+
+  users?.sort((a, b) => b.id - a.id);
 
   const indexOfLastUser = currentPage * itemsPerPage;
   const indexOfFirstUser = indexOfLastUser - itemsPerPage;
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
   const filteredUsers = searchResult?.length > 0 ? searchResult : users;
+
   const currentUsers = filteredUsers?.slice(indexOfFirstUser, indexOfLastUser);
+
+  const currentfollowup = todafollowup?.slice(
+    indexOfFirstUser,
+    indexOfLastUser
+  );
 
   //User Adding section
 
@@ -144,6 +141,33 @@ function UsersList() {
 
       if (!name || !graduation || !email || !mobile || !age || !gender) {
         toast.error("Please fill in all fields.");
+        return;
+      }
+
+      if (
+        !age ||
+        !age.length ||
+        !/^[1-9][0-9]*$/.test(age) ||
+        age < 18 ||
+        age > 70
+      ) {
+        toast.error("Please enter a valid age (18-70).");
+        return;
+      }
+
+      if (
+        !graduation ||
+        !graduation.length ||
+        !/^[a-zA-Z\s]+$/.test(graduation)
+      ) {
+        toast.error("Please enter a valid graduation.");
+        return;
+      }
+
+      if (name.length < 2 || name.length > 50 || !/^[a-zA-Z\s]+$/.test(name)) {
+        toast.error(
+          "Please enter a valid name (2-50 characters, letters and spaces only)."
+        );
         return;
       }
 
@@ -171,7 +195,7 @@ function UsersList() {
         .post("http://localhost:5000/api/admin/register", formData)
         .then((response) => {
           if (response.data.success) {
-            navigate("/admin/success");
+            navigate(window.location.reload());
             toast.success("Submission success");
           }
         })
@@ -183,44 +207,46 @@ function UsersList() {
       toast.error("Something went wrong");
     }
   };
+
+  const deleteuser = (id) => {
+    Swal.fire({
+      title: "Are you sure To Delete This project?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        adminRequest({
+          url: `/api/admin/deleteuser/${id}`,
+          method: "DELETE",
+        }).then((response) => {
+          if (response.data.success) {
+            navigate(window.location.reload())
+          }
+          toast.success("Deteled succcessfull")
+        });
+      }
+    });
+  };
+
   return (
     <>
       <div className="flex">
         {/* Left Side Navigation */}
+
         <div className="w-1/4 bg-gray-800  text-white py-6 px-4">
           <div className="mt-6">
             <button
-              className="block py-2 px-4 rounded text-gray-400 hover:bg-gray-700"
+              className="block py-2 px-4 rounded  bg-gray-700"
               onClick={handleMenuToggle}
             >
               Menu
             </button>
-            { showMenu && (
+            {showMenu && (
               <ul className="mt-2">
-                <button
-                  className={`block py-2 px-4 rounded ${
-                    "/admin/home"
-                      ? "bg-gray-800 text-white"
-                      : "text-gray-400 hover:bg-gray-700"
-                  }`}
-                >
-                  Home
-                </button>
-             
-                  
-                <button 
-              
-                  onClick={toggleTodayFollowUps}
-                  className={`block py-2 px-4 rounded ${
-                    "/company-list"
-                      ? "bg-gray-800 text-white"
-                      : "text-gray-400 hover:bg-gray-700"
-                  }`}
-                >
-                  User List
-                </button>
-               
-
                 <button
                   onClick={toggleTodayFollowUps}
                   className={`block py-2 px-4 rounded ${
@@ -229,10 +255,37 @@ function UsersList() {
                       : "text-gray-400 hover:bg-gray-700"
                   }`}
                 >
-                  FollowUp
+                  Today FollowUp
                 </button>
+
+                <Link to={"/admin/home"}>
+                  <button
+                    className={`block py-2 px-4 rounded ${
+                      "/admin/home"
+                        ? "bg-gray-800 text-white"
+                        : "text-gray-400 hover:bg-gray-700"
+                    }`}
+                  >
+                    Dashboard
+                  </button>
+                </Link>
+
+                <Link to={"/admin/notification"}>
+                  <button
+                    className={`block py-2 px-4 rounded ${
+                      "/admin/home"
+                        ? "bg-gray-800 text-white"
+                        : "text-gray-400 hover:bg-gray-700"
+                    }`}
+                  >
+                    Notification
+                    <span class=" top-0 right-0 px-2 py-1 translate-x-1/2 bg-red-500 rounded-full text-xs text-white">
+                      {notificationcount}
+                    </span>
+                  </button>
+                </Link>
               </ul>
-            )  }
+            )}
           </div>
         </div>
         <div className="w-3/4 bg-gray-100 p-6">
@@ -270,40 +323,42 @@ function UsersList() {
               <button
                 class="bg-success float-right top-10px relative rounded-2 text-white "
                 style={{ position: "relative", top: "90px", left: "96px" }}
-                onClick={showSwal}
+                onClick={togglepop}
               >
                 ADD USER
               </button>{" "}
               <label
-          style={{ position: "relative", top: "58px", left: "706px" }}
-          htmlFor="itemsPerPage"
-          className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400"
-        >
-          Items Per Page
-        </label>
-        <select
-          style={{ position: "relative", top: "22px", left: "155px" }}
-          onChange={handleListOptionChange}
-          id="itemsPerPage"
-          className="bg-gray-50 border float-right border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-          value={selectedListOption}
-        >
-          {selectOptions.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
+                style={{ position: "relative", top: "58px", left: "706px" }}
+                htmlFor="itemsPerPage"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400"
+              >
+                Items Per Page
+              </label>
+              <select
+                style={{ position: "relative", top: "22px", left: "155px" }}
+                onChange={handleListOptionChange}
+                id="itemsPerPage"
+                className="bg-gray-50 border float-right border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                value={selectedListOption}
+              >
+                {selectOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
-          
 
           {seen ? (
             <>
               <section className="popup">
                 <div className="popup-inner ">
                   <form className="mt-5" onSubmit={handleRegister}>
-                    <button onClick={togglepop} className="float-right">
+                    <button
+                      onClick={togglepop}
+                      className="float-right relative bottom-7"
+                    >
                       X
                     </button>
 
@@ -405,7 +460,7 @@ function UsersList() {
                     <div className="d-flex flex-row align-items-center mb-4">
                       <i className="fas fa-key fa-lg me-3 fa-fw"></i>
                       <div className="form-outline flex-fill mb-0">
-                        <input
+                        <select
                           type="text"
                           name="gender"
                           onChange={(e) => {
@@ -414,7 +469,11 @@ function UsersList() {
                           value={gender}
                           id="form3Example4cd"
                           className="form-control"
-                        />
+                        >
+                          <option value="">Select Option</option>
+                          <option value="male">Male</option>
+                          <option value="female">Female</option>
+                        </select>
                         <label className="form-label" for="form3Example4cd">
                           Gender
                         </label>
@@ -436,7 +495,7 @@ function UsersList() {
             type="text"
             value={searchTerm}
             class="relative left-5 bg-gray-50 border border-black text-gray-900 text-sm rounded-lg ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            onChange={(e) => setSearchterm(e.target.value)}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
           <button
             className="relative bottum-5 left-5 bg-black text-white rounded-2"
@@ -447,20 +506,10 @@ function UsersList() {
 
           <div className="container">
             <div className="row">
-             
-
-
-
-{seenfollowup ? (
-            <>
-              
-                  <button
-                    onClick={toggleTodayFollowUps}
-                    className="float-right"
-                  >
-                    X
-                  </button>
-                  {todafollowup?.map((item) => (
+              {seenfollowup ? (
+                <>
+                  <h1>Today FollowUps</h1>
+                  {currentfollowup?.map((item) => (
                     <>
                       <ul className="list-group list-group-light" key={item.id}>
                         <li
@@ -469,9 +518,17 @@ function UsersList() {
                         >
                           <div className="d-flex align-items-center">
                             <div className="ms-3">
-                              <p className="fw-bold mb-1">{item.username}</p>
-                              <p className="text-muted mb-0">{item.followup}</p>
-                              <p className="text-muted mb-0">{item.status}</p>
+                              <p className="fw-bold mb-1">
+                                {" "}
+                                Date : {item.date}
+                              </p>
+                              <p className="text-muted mb-0">
+                                FollowUp Note : {item.followup}
+                              </p>
+                              <p className="text-muted mb-0">
+                                {" "}
+                                FollowUp Status :{item.status}
+                              </p>
                             </div>
                           </div>
                           <Link to={`/admin/user/${item.userid}`} role="button">
@@ -483,94 +540,164 @@ function UsersList() {
                       </ul>
                     </>
                   ))}
-             
-            </>
-          ) : (
-            <>
 
-{searchResult?.length > 0
-                ? searchResult?.map((item) => (
-                    <ul className="list-group list-group-light" key={item.id}>
-                      <li
-                        className="list-group-item  d-flex justify-content-between align-items-center"
-                        style={{ backgroundColor: "#FFE4C4", top: "30px" }}
-                      >
-                        <div className="d-flex align-items-center">
-                          <div className="ms-3">
-                            <p className="fw-bold mb-1">{item.name}</p>
-                            <p className="text-muted mb-0">{item.email}</p>
-                          </div>
-                        </div>
-                        <Link to={`/admin/user/${item.id}`} role="button">
-                          <button className="btn text-white bg-danger btn-rounded btn-sm">
-                            View
+                  <nav className="relative justify-content-center navbar navbar-light mt-5 bg-light">
+                    <ul className="pagination">
+                      <li key="prev" className="page-item">
+                        <button
+                          onClick={() => paginate(currentPage - 1)}
+                          className="page-link"
+                          disabled={currentPage === 1}
+                        >
+                          Prev
+                        </button>
+                      </li>
+                      {Array.from({
+                        length: Math.ceil(todafollowup?.length / itemsPerPage),
+                      }).map((_, index) => (
+                        <li key={index} className="page-item">
+                          <button
+                            onClick={() => paginate(index + 1)}
+                            className={`page-link ${
+                              currentPage === index + 1 ? "active" : ""
+                            }`}
+                          >
+                            {index + 1}
                           </button>
-                        </Link>
+                        </li>
+                      ))}
+                      <li key="next" className="page-item">
+                        <button
+                          onClick={() => paginate(currentPage + 1)}
+                          className="page-link"
+                        >
+                          Next
+                        </button>
                       </li>
                     </ul>
-                  ))
-                : currentUsers?.map((item) => (
-                    <>
-                      <ul className="list-group list-group-light" key={item.id}>
-                        <li
-                          className="list-group-item d-flex justify-content-between align-items-center"
-                          style={{ backgroundColor: "#FFE4C4", top: "30px" }}
-                        >
-                          <div className="d-flex align-items-center">
-                            <div className="ms-3">
-                              <p className="fw-bold mb-1">{item.name}</p>
-                              <p className="text-muted mb-0">{item.email}</p>
-                            </div>
-                          </div>
-                          <Link to={`/admin/user/${item.id}`} role="button">
-                            <button className="btn text-white bg-danger btn-rounded btn-sm">
-                              View
-                            </button>
-                          </Link>
-                        </li>
-                      </ul>
-                    </>
-                  ))}
-            
-            
-              <nav className="relative justify-content-center navbar navbar-light mt-5 bg-light">
-                <ul className="pagination">
-                  <li key="prev" className="page-item">
-                    <button
-                      onClick={() => paginate(currentPage - 1)}
-                      className="page-link"
-                      disabled={currentPage === 1}
-                    >
-                      Prev
-                    </button>
-                  </li>
-                  {Array.from({
-                    length: Math.ceil(filteredUsers?.length / itemsPerPage),
-                  }).map((_, index) => (
-                    <li key={index} className="page-item">
-                      <button
-                        onClick={() => paginate(index + 1)}
-                        className={`page-link ${
-                          currentPage === index + 1 ? "active" : ""
-                        }`}
-                      >
-                        {index + 1}
-                      </button>
-                    </li>
-                  ))}
-                  <li key="next" className="page-item">
-                    <button
-                      onClick={() => paginate(currentPage + 1)}
-                      className="page-link"
-                    >
-                      Next
-                    </button>
-                  </li>
-                </ul>
-              </nav>
-            </>
-          )}
+                  </nav>
+                </>
+              ) : (
+                <>
+                  <h1>All Users</h1>
 
+                  {searchResult?.length > 0
+                    ? searchResult?.map((item) => (
+                        <ul
+                          className="list-group list-group-light"
+                          key={item.id}
+                        >
+                          <li
+                            className="list-group-item  d-flex justify-content-between align-items-center"
+                            style={{ backgroundColor: "#FFE4C4", top: "30px" }}
+                          >
+                            <div className="d-flex align-items-center">
+                              <div className="ms-3">
+                                <p className="fw-bold mb-1">
+                                  Name : {item.name}
+                                </p>
+                                <p className="text-muted mb-0">
+                                  {" "}
+                                  Email: {item.email}
+                                </p>
+                              </div>
+                            </div>
+                            <Link to={`/admin/user/${item.id}`} role="button">
+                              <button className="btn text-white bg-danger btn-rounded btn-sm">
+                                View
+                              </button>
+                            </Link>
+
+                            <button
+                              onClick={() => deleteuser(item.id)}
+                              className="btn text-white bg-danger btn-rounded btn-sm"
+                            >
+                              Delete
+                            </button>
+                          </li>
+                        </ul>
+                      ))
+                    : currentUsers?.map((item) => (
+                        <>
+                          <ul
+                            className="list-group list-group-light"
+                            key={item.id}
+                          >
+                            <li
+                              className="list-group-item d-flex justify-content-between align-items-center"
+                              style={{
+                                backgroundColor: "#FFE4C4",
+                                top: "30px",
+                              }}
+                            >
+                              <div className="d-flex align-items-center">
+                                <div className="ms-3">
+                                  <p className="fw-bold mb-1">
+                                    Name : {item.name}
+                                  </p>
+                                  <p className="fw-bold mb-1">
+                                    Date : {item.date}
+                                  </p>
+                                  <p className="text-muted mb-0">
+                                    {" "}
+                                    Email: {item.email}
+                                  </p>
+                                </div>
+                              </div>
+                              <Link to={`/admin/user/${item.id}`} role="button">
+                                <button className="btn text-white bg-danger btn-rounded btn-sm">
+                                  View
+                                </button>
+                              </Link>
+                              
+                            <button
+                              onClick={() => deleteuser(item.id)}
+                              className="btn text-white bg-danger btn-rounded btn-sm"
+                            >
+                              Delete
+                            </button>
+                            </li>
+                          </ul>
+                        </>
+                      ))}
+
+                  <nav className="relative justify-content-center navbar navbar-light mt-5 bg-light">
+                    <ul className="pagination">
+                      <li key="prev" className="page-item">
+                        <button
+                          onClick={() => paginate(currentPage - 1)}
+                          className="page-link"
+                          disabled={currentPage === 1}
+                        >
+                          Prev
+                        </button>
+                      </li>
+                      {Array.from({
+                        length: Math.ceil(filteredUsers?.length / itemsPerPage),
+                      }).map((_, index) => (
+                        <li key={index} className="page-item">
+                          <button
+                            onClick={() => paginate(index + 1)}
+                            className={`page-link ${
+                              currentPage === index + 1 ? "active" : ""
+                            }`}
+                          >
+                            {index + 1}
+                          </button>
+                        </li>
+                      ))}
+                      <li key="next" className="page-item">
+                        <button
+                          onClick={() => paginate(currentPage + 1)}
+                          className="page-link"
+                        >
+                          Next
+                        </button>
+                      </li>
+                    </ul>
+                  </nav>
+                </>
+              )}
             </div>
           </div>
         </div>

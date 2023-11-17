@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const { Client } = require("pg");
 const Notification = require("../Models/NotificationModel");
-const Followup = require("../Models/FollowupModel");
+
 const FollowUp = require("../Models/FollowupModel");
 
 const db = new Client({
@@ -20,12 +20,14 @@ const adminSecret = "adminToken";
 
 const registeruser = async (req, res) => {
   try {
-    const { name, graduation, email, mobile, age, gender } = req.body;
-    const sqlInsert = `INSERT INTO userdata (name,graduation,email,mobile,age,gender) VALUES ($1 , $2 , $3 , $4 , $5 , $6 )`;
+    const { name, graduation, email, mobile, age, gender  } = req.body;
+    const date = new Date().toISOString().split("T")[0];
+   
+    const sqlInsert = `INSERT INTO userdata (name,graduation,email,mobile,age,gender,date) VALUES ($1 , $2 , $3 , $4 , $5 , $6,$7 )`;
 
     db.query(
       sqlInsert,
-      [name, graduation, email, mobile, age, gender],
+      [name, graduation, email, mobile, age, gender,date],
       (error, result) => {
         if (error) {
           res.status(500).send({
@@ -102,12 +104,11 @@ const CreateFollowup = async (req, res) => {
   try {
     const id = req.params.id;
 
-    const {   followup, status, date } = req.body;
-    console.log(req.body)
+    const { followup, status, date } = req.body;
 
-    const newfollowup = new Followup({
+    const newfollowup = new FollowUp({
       userid: id,
-   
+
       followup: followup,
       status: status,
       date: date,
@@ -115,17 +116,12 @@ const CreateFollowup = async (req, res) => {
 
     await newfollowup.save();
 
-    
-
     const newNotification = new Notification({
-  
       date: date,
       userid: id,
     });
 
     await newNotification.save();
-
-    console.log(newNotification);
 
     res.status(200).json({
       message: "FollowUp Added Successfull",
@@ -141,7 +137,6 @@ const GetFollowUp = async (req, res) => {
     const id = req.params.id;
 
     const followups = await FollowUp.find({ userid: id });
- 
 
     res.status(200).send({
       message: "Fetched followups",
@@ -157,6 +152,7 @@ const GetFollowUp = async (req, res) => {
 const GetNotification = async (req, res) => {
   try {
     const today = new Date().toISOString().split("T")[0];
+   
 
     const notification = await Notification.find({
       read: "Unread",
@@ -225,9 +221,14 @@ const GetDataDashboard = async (req, res) => {
     const GetAllUser = "SELECT * FROM userdata";
     const totalusers = await db.query(GetAllUser);
 
+    const totalfollowups = await FollowUp.find();
+
+    const followupcount = totalfollowups.length;
+
     res.status(200).send({
       message: " Data Fetched ",
       totalusers,
+      followupcount,
       success: true,
     });
   } catch (error) {
@@ -238,8 +239,6 @@ const GetDataDashboard = async (req, res) => {
 const GetFollowUps = async (req, res) => {
   try {
     const id = req.params.id;
-
- 
 
     const followups = await FollowUp.find({ userid: id });
 
@@ -256,7 +255,7 @@ const GetFollowUps = async (req, res) => {
     });
   }
 };
- 
+
 const UserSearch = async (req, res) => {
   try {
     const { searchTerm } = req.body;
@@ -264,6 +263,7 @@ const UserSearch = async (req, res) => {
     const result = await db.query("SELECT * FROM userdata WHERE name LIKE $1", [
       `%${searchTerm}%`,
     ]);
+    searchTerm;
 
     res.json(result.rows);
   } catch (error) {
@@ -274,20 +274,18 @@ const UserSearch = async (req, res) => {
 
 const EditUser = async (req, res) => {
   try {
-
     const id = req.params.id;
-    const {  name, graduation, age, gender, email, mobile } = req.body;
+    const { name, graduation, age, gender, email, mobile } = req.body;
 
     const userId = parseInt(id);
-    const ages = parseInt(age)
+    const ages = parseInt(age);
 
     const updateQuery = `
       UPDATE userdata
       SET name = $1, graduation = $2,age = $3, gender = $4,email = $5,mobile = $6 WHERE id = $7
     `;
- 
+
     const values = [name, graduation, ages, gender, email, mobile, userId];
-  
 
     await db.query(updateQuery, values);
 
@@ -298,25 +296,56 @@ const EditUser = async (req, res) => {
   }
 };
 
-
-const CurrentFollowups = async (req ,res) => {
+const CurrentFollowups = async (req, res) => {
   try {
-    
     const currentDate = new Date();
     const formattedDate = currentDate.toISOString().substring(0, 10);
-   
-    const FollowUps = await FollowUp.find({ date : formattedDate})
-    console.log(FollowUps)
-    
-    res.status(200).send({ message : "Today FollowUp Fetched" , FollowUps , success : true})
 
+    const FollowUps = await FollowUp.find({ date: formattedDate });
+
+    res
+      .status(200)
+      .send({ message: "Today FollowUp Fetched", FollowUps, success: true });
   } catch (error) {
-    console.log(error)
+    console.log(error);
 
     res.status(500).send({
-      message : "error in backend",
-      success : false
+      message: "error in backend",
+      success: false,
+    });
+  }
+};
+
+
+const DeleteUser = async ( req ,res ) => {
+  try {
+    const id = req.params.id
+
+    const deletequery = `
+    
+    DELETE FROM userdata WHERE id = $1
+    `;
+
+    db.query(deletequery,[id],(err, result)=>{
+      if (err) {
+        console.log(err)
+        res.status(500).send({
+          message :"error backend",
+          success:false
+        })
+      }
+
+      if (result) {
+        res.status(200).send({
+          message : "user deleted successfull",
+          success:true
+
+        })
+      }
     })
+    
+  } catch (error) {
+    
   }
 }
 
@@ -334,5 +363,6 @@ module.exports = {
   GetFollowUps,
   UserSearch,
   EditUser,
-  CurrentFollowups
+  CurrentFollowups,
+  DeleteUser
 };

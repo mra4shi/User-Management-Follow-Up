@@ -16,9 +16,7 @@ function UserSinglePage() {
 
   const [followupmode, setFollowupmode] = useState(false);
 
-  function togglefollowup() {
-    setFollowupmode(!followupmode);
-  }
+ 
 
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 1;
@@ -26,7 +24,7 @@ function UserSinglePage() {
   const sortedFollowups = followups?.sort(
     (a, b) => new Date(a.date) - new Date(b.date)
   );
-  console.log(sortedFollowups, "dorted followups");
+ 
   const currentFollowups = sortedFollowups?.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize
@@ -60,26 +58,13 @@ function UserSinglePage() {
   };
 
   const [editMode, setEditMode] = useState(false);
-  const showSwal = () => {
-    Swal.fire({
-      title: "Are you sure To Edit This User?",
-      text: "You can be able to revert this later!",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, edit it!",
-    }).then((result) => {
-      console.log(result);
-      if (result.isConfirmed) {
+ 
         const toggleEditMode = () => {
           setEditMode(!editMode);
         };
-        toggleEditMode();
-      }
-    });
-  };
-
+       
+      
+    
   function offedit() {
     setEditMode(!editMode);
   }
@@ -99,6 +84,22 @@ function UserSinglePage() {
       return;
     }
 
+    if ( !/^[1-9][0-9]*$/.test(form.age) || form.age < 18 || form.age > 70) {
+      toast.error("Please enter a valid age (18-70).");
+      return;
+    }
+
+    if (!form.graduation || !form.graduation.length || !/^[a-zA-Z\s]+$/.test(form.graduation)) {
+      toast.error("Please enter a valid graduation.");
+      return;
+    }
+
+    if ( form.name.length < 2 || form.name.length > 50 || !/^[a-zA-Z\s]+$/.test(form.name)) {
+      toast.error("Please enter a valid name (2-50 characters, letters and spaces only).");
+      return;
+    }
+
+
     const emailRegex = /^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/;
     if (!emailRegex.test(form.email)) {
       toast.error("Please enter a valid email address.");
@@ -111,10 +112,7 @@ function UserSinglePage() {
       return;
     }
 
-    if (form.age < 18 || form.age > 70) {
-      toast.error("Age should be between 18 and 70.");
-      return;
-    }
+   
 
     try {
       const formDataToSend = new FormData();
@@ -149,8 +147,10 @@ function UserSinglePage() {
   };
 
   const dateString = followup?.follow_up_date;
+  console.log(dateString)
   const date = moment(dateString);
   const formattedDate = date.format("YYYY-MM-DD / HH:mm");
+  console.log(formattedDate)
 
   useEffect(() => {
     adminRequest({
@@ -205,6 +205,11 @@ function UserSinglePage() {
 
 
 
+  const [showMenu, setShowMenu] = useState(true);
+  const handleMenuToggle = () => {
+    setShowMenu((prevState) => !prevState);
+  };
+
   //followup
 
   
@@ -216,6 +221,8 @@ function UserSinglePage() {
   });
 
  
+  const formateddatefollowup= forms.date
+  console.log(formateddatefollowup)
 
   const handleChanges = (evt) => {
     const { name, value } = evt.target;
@@ -225,87 +232,155 @@ function UserSinglePage() {
     });
   };
 
-  const followuphandleSubmit = async (e) => {
-    e.preventDefault();
-    try {
 
-      const formDataToSend = new FormData();
-      
+
    
-      formDataToSend.append("followup", forms.followup);
-      formDataToSend.append("status",forms.status)
-      formDataToSend.append("date",forms.date)
-      const response = await adminRequest({
-        url: `/api/admin/follow-up/${id}`,
-        method: "POST",
-        data: formDataToSend,
-      });
-      if (response.data) {
-        console.log(response);
-        
-        toast.success("followup success");
-        navigate(window.location.reload());
-      }
-    } catch (error) {
-      toast.error("something is wrong login again");
-      localStorage.removeItem("admin_Secret");
-      navigate("/admin/login");
+
+  
+
+ const followuphandleSubmit = async (e) => {
+  e.preventDefault();
+
+  
+  if (!forms.followup || !forms.status || !forms.date) {
+    toast.error("Please fill all fields");
+    return;
+  }
+
+ 
+  if (forms.followup.length < 5 || forms.followup.length > 255) {
+    toast.error("Followup must be between 10 and 255 characters");
+    return;
+  }
+
+
+  if (!forms.status) {
+    toast.error("Status cannot be empty");
+    return;
+  }
+ 
+ 
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(forms.date)) {
+    toast.error("Invalid date format");
+    return;
+  }
+
+ 
+  try {
+    const formDataToSend = new FormData();
+    formDataToSend.append("followup", forms.followup);
+    formDataToSend.append("status", forms.status);
+    formDataToSend.append("date", formateddatefollowup);
+
+    const response = await adminRequest({
+      url: `/api/admin/follow-up/${id}`,
+      method: "POST",
+      data: formDataToSend,
+    });
+
+    if (response.data) {
+      console.log(response);
+      toast.success("Followup submitted successfully");
+      navigate(window.location.reload());
     }
-  };
+  } catch (error) {
+    toast.error("Something went wrong. Please try again later");
+  }
+};
 
   return (
-    <div>
-      <nav class="bg-white border-gray-200 dark:bg-gray-900">
-        <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-         
-          <div class=" w-full md:block md:w-auto" id="navbar-default">
-            <ul class="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
-              <li>
-                <Link
-                  to="/admin/home"
-                  class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent "
-                  aria-controls="navbar-default"
-                  aria-expanded="true"
-                >
-                  Home
+    <div className="flex">
+    {/* Left Side Navigation */}
+
+    <div className="w-1/4 bg-gray-800  text-white py-6 px-4">
+      <div className="mt-6">
+        <button
+          className="block py-2 px-4 rounded  bg-gray-700"
+          onClick={handleMenuToggle}
+        >
+          Menu
+        </button>
+        {showMenu && (
+          <ul className="mt-2">
+            <Link
+            to={'/admin/userlist'}>
+            <button
+              
+              className={`block py-2 px-4 rounded ${
+                "/admin/"
+                ? "bg-gray-800 text-white"
+                : "text-gray-400 hover:bg-gray-700"
+              }`}
+              >
+              Users List
+            </button>
                 </Link>
-              </li>
 
-              <li>
-                <button
-                  to="/admin/userlist"
-                  class="block py-2 px-3 text-black  rounded md:bg-white md:text-blue-700 md:p-0 dark:text-black md:dark:text-blue-500"
-                >
-                  User List
-                </button>
-              </li>
+            <Link to={"/admin/home"}>
+              <button
+                className={`block py-2 px-4 rounded ${
+                  "/admin/home"
+                    ? "bg-gray-800 text-white"
+                    : "text-gray-400 hover:bg-gray-700"
+                }`}
+              >
+                Dashboard
+              </button>
+            </Link>
 
-              <li>
-                <button
-                  to="/admin/notification"
-                  class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
-                >
-                  Notification{" "}
-                  <span class=" top-0 right-0 px-2 py-1 translate-x-1/2 bg-red-500 rounded-full text-xs text-white">
-                    {notificationcount}
-                  </span>
-                </button>
-              </li>
 
-              <li>
-                <button
-                  onClick={handleLogout}
-                  class="block py-2 px-3 text-gray-900 rounded hover:bg-black md:border-0 hover:text-white md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
-                >
-                  LogOut
-                </button>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </nav>
+            <Link to={"/admin/notification"}>
+              <button
+                className={`block py-2 px-4 rounded ${
+                  "/admin/home"
+                    ? "bg-gray-800 text-white"
+                    : "text-gray-400 hover:bg-gray-700"
+                }`}
+              >
+               Notification
+               <span class=" top-0 right-0 px-2 py-1 translate-x-1/2 bg-red-500 rounded-full text-xs text-white">
+                      {notificationcount}
+                    </span>
+                     
+              </button>
+            </Link>
 
-      <header>
+          </ul>
+        )}
+      </div>
+    </div>
+    <div className="w-3/4 bg-gray-100 p-6">
+  
+            <div class=" flex flex-wrap   items-center justify-between ">
+              <ul class="font-medium flex flex-col md:p-0 mb-0 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8  md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-800 dark:border-gray-700">
+                <li>
+                  <button
+                    onClick={handleLogout}
+                    class="block py-2 px-3 text-gray-900 rounded hover:bg-black md:border-0 hover:text-white md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
+                  >
+                    LogOut
+                  </button>
+                </li>
+                <li>
+                  <Link
+                    to="/admin/notification"
+                    class="block px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
+                  >
+                    <span class=" top-0 right-0 px-2 py-1 translate-x-1/2 bg-red-500 rounded-full text-xs text-white">
+                      {notificationcount}
+                    </span>
+                    <img
+                      style={{ width: "29px", height: "26px" }}
+                      src="https://static.thenounproject.com/png/194977-200.png"
+                      alt=""
+                    />
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          
+         
+ 
         <section class="">
           <div class="grid h-screen grid-cols-2">
             <div class="">
@@ -390,11 +465,13 @@ function UserSinglePage() {
                                   Gender
                                 </label>
                                 <select
-                                  id="gender"
+                                  
                                   name="gender"
                                   value={form.gender}
                                   onChange={handleChange}
-                                  className="bg-gray-200 border rounded text-xs font-medium leading-none text-gray-800 py-3 w-full pl-3 mt-2"
+                                  id="form3Example4cd"
+                           
+                                  className=" form-control bg-gray-200 border rounded text-xs font-medium leading-none text-gray-800 py-3 w-full pl-3 mt-2"
                                 >
                                   <option value="male">Male</option>
                                   <option value="female">Female</option>
@@ -480,12 +557,12 @@ function UserSinglePage() {
                                 className="float-right bg-blue-500 text-white rounded-1"
                                 style={{
                                   position: " relative",
-                                  left: "100px",
+                                  left: "50px",
                                   top: "-70px",
                                   height: "36px",
                                   width: "60px",
                                 }}
-                                onClick={showSwal}
+                                onClick={toggleEditMode}
                               >
                                 Edit
                               </button>
@@ -495,12 +572,12 @@ function UserSinglePage() {
                               >
                                 username
                               </label>
-                              <input
+                              <h1
                                 name="name"
-                                value={user.name}
+                                
                                 aria-labelledby="tet"
                                 class="bg-gray-200 border rounded  text-xs font-medium  text-gray-800 py-3 w-full pl-3 mt-2"
-                              />
+                              > {user.name} </h1>
                               <div>
                                 <label
                                   id="graduation"
@@ -508,14 +585,14 @@ function UserSinglePage() {
                                 >
                                   Graduation
                                 </label>
-                                <input
+                                <h1
                                   type="text"
                                   placeholder="graduation"
                                   name="graduation"
-                                  value={user.graduation}
+                                
                                   aria-labelledby="tet"
                                   class="bg-gray-200 border rounded  text-xs font-medium leading-none text-gray-800 py-3 w-full pl-3 mt-2"
-                                />
+                                >{user.graduation} </h1>
                               </div>
 
                               <div>
@@ -525,14 +602,14 @@ function UserSinglePage() {
                                 >
                                   E-Mail
                                 </label>
-                                <input
+                                <h1
                                   type="email"
                                   placeholder="email"
                                   name="email"
-                                  value={user.email}
+                                  
                                   aria-labelledby="tet"
                                   class="bg-gray-200 border rounded  text-xs font-medium leading-none text-gray-800 py-3 w-full pl-3 mt-2"
-                                />
+                                >{user.email}</h1>
                               </div>
                               <div>
                                 <label
@@ -541,14 +618,14 @@ function UserSinglePage() {
                                 >
                                   Gender
                                 </label>
-                                <input
+                                <h1
                                   type="text"
                                   placeholder="Gender"
                                   name="gender"
-                                  value={user.gender}
+                                  
                                   aria-labelledby="tet"
                                   class="bg-gray-200 border rounded  text-xs font-medium leading-none text-gray-800 py-3 w-full pl-3 mt-2"
-                                />
+                                >{user.gender}</h1>
                               </div>
                               <div class="mt-6  w-full">
                                 <label
@@ -558,14 +635,14 @@ function UserSinglePage() {
                                   Age
                                 </label>
                                 <div class="relative flex items-center justify-center">
-                                  <input
+                                  <h1
                                     type="Number"
                                     placeholder="Age"
                                     name="age"
-                                    value={user.age}
+                                  
                                     id="text"
                                     class="bg-gray-200 border rounded  text-xs font-medium leading-none text-gray-800 py-3 w-full pl-3 mt-2"
-                                  />
+                                  > {user.age}</h1>
                                 </div>
                               </div>
                               <div class="mt-6  w-full">
@@ -576,28 +653,17 @@ function UserSinglePage() {
                                   Mobile
                                 </label>
                                 <div class="relative flex items-center justify-center">
-                                  <input
+                                  <h1
                                     type="Number"
                                     placeholder="Mobile"
                                     name="mobile"
-                                    value={user.mobile}
+                                   
                                     id="text"
                                     class="bg-gray-200 border rounded  text-xs font-medium leading-none text-gray-800 py-3 w-full pl-3 mt-2"
-                                  />
+                                  > {user.mobile} </h1>
                                 </div>
                               </div>
-                              <>
-                                {" "}
-                                <Link to={`/admin/follow-up/${user.id}`}>
-                                  {" "}
-                                  <button
-                                    type="button"
-                                    class="btn btn-primary btn-rounded btn-lg"
-                                  >
-                                    Follow Up
-                                  </button>
-                                </Link>
-                              </>
+                              
 
                               <div className="row"></div>
                             </div>
@@ -613,12 +679,13 @@ function UserSinglePage() {
             <div class="card" style={{ borderRadius: "0%" }}>
               <h1
                 className="flex justify-center"
-                style={{ position: "relative", right: "184px", top: "0px" }}
+                style={{ position: "relative", right: "106px", top: "0px" }}
               >
                 FollowUps
               </h1>
 
               <form
+
                 style={{
                   position: "relative",
                   right: "144px",
@@ -633,7 +700,7 @@ function UserSinglePage() {
                     Follow Up Note
                   </label>
                   <div class="relative flex items-center justify-center">
-                    <input
+                    <textarea
                       type="text"
                       placeholder="followup"
                       name="followup"
@@ -666,7 +733,7 @@ function UserSinglePage() {
                 <div
                   style={{
                     position: "relative",
-                    left: "333px",
+                    left: "275px",
                     bottom: "79px",
                   }}
                 >
@@ -691,6 +758,7 @@ function UserSinglePage() {
                     style={{ position: "relative", bottom: "65px" }}
                     role="button"
                     type="submit"
+                     
                     class="focus:ring-1 focus:ring-offset-2 focus:ring-indigo-700 text-sm font-semibold leading-none text-white focus:outline-none bg-indigo-700 border rounded hover:bg-indigo-600 py-2 w-full"
                   >
                     Add FollowUp
@@ -698,44 +766,8 @@ function UserSinglePage() {
                 </div>
               </form>
 
-              <div className="flex items-center justify-center">
-                {followup.length === 0 ? (
-                  <>
-                    <h1>NoFollowUps</h1>
-                  </>
-                ) : (
-                  <>
-                    {currentPage == 1 ? (
-                      <></>
-                    ) : (
-                      <>
-                        <button
-                          className="bg-blue-500 text-white font-bold py-2 px-4 rounded"
-                          onClick={handlePreviousPage}
-                        >
-                          Previous FollowUp
-                        </button>
-                      </>
-                    )}
-
-                    <span className="mx-4">FollowUp {currentPage}</span>
-
-                    {currentPage * pageSize >= followups?.length ? (
-                      <></>
-                    ) : (
-                      <>
-                        <button
-                          className="bg-blue-500 text-white font-bold py-2 px-4 rounded"
-                          onClick={handleNextPage}
-                        >
-                          Next FollowUp Date
-                        </button>
-                      </>
-                    )}
-                  </>
-                )}
-              </div>
-              {currentFollowups?.map((items) => (
+           
+              {sortedFollowups?.map((items) => (
                 <div className="flex items-center justify-center">
                   <div class="mt-3 mb-4">
                                     <input
@@ -768,8 +800,11 @@ function UserSinglePage() {
             </div>
           </div>
         </section>
-      </header>
-    </div>
+    
+      </div>
+      </div>
+    
+   
   );
 }
 
